@@ -133,11 +133,18 @@ async function estimate() {
     const data = await res.json();
     console.log("✅ /estimate レスポンス:", data);
 
+    // 未対応エラーの場合
     if (data.error) {
-      document.getElementById("result").innerHTML = `<strong>エラー:</strong> ${data.error}`;
+      console.warn("⚠️ 見積もりエラー（内部情報）:", data.error);
+
+      document.getElementById("result").innerHTML = `
+        <h2>見積もり結果</h2>
+        <p>申し訳ございません。対応しておりません。</p>
+      `;
       return;
     }
 
+    // 通常の見積もり表示
     let html = `
       <h2>見積もり結果</h2>
       <p><strong>機種:</strong> ${data.model}</p>
@@ -159,6 +166,9 @@ async function estimate() {
 
   } catch (err) {
     console.error("❌ estimate() エラー:", err);
-    document.getElementById("result").innerHTML = `<strong>通信エラー:</strong> ${err.message}`;
+    document.getElementById("result").innerHTML = `
+      <h2>見積もり結果</h2>
+      <p>申し訳ございません。システムエラーが発生しました。</p>
+    `;
   }
 }
