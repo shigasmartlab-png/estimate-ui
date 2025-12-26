@@ -1,17 +1,11 @@
 const API_BASE = "https://estimate-api-6j8x.onrender.com";
 
-// ------------------------------
-// 初期ロード
-// ------------------------------
 window.onload = async () => {
   console.log("📦 ページ読み込み開始");
   await loadModels();
   await loadOptions();
 };
 
-// ------------------------------
-// 機種プルダウン（全件表示）
-// ------------------------------
 async function loadModels() {
   console.log("🔍 loadModels() 実行");
 
@@ -38,9 +32,6 @@ async function loadModels() {
   }
 }
 
-// ------------------------------
-// 故障内容プルダウン（未対応ならグレーアウト）
-// ------------------------------
 async function loadRepairs() {
   const model = document.getElementById("model").value;
   console.log("🔍 loadRepairs() 実行 - 選択機種:", model);
@@ -54,18 +45,15 @@ async function loadRepairs() {
     repairSelect.innerHTML = "";
 
     if (!data.repairs || data.repairs.length === 0) {
-      // 未対応 → グレーアウト
       const opt = document.createElement("option");
       opt.textContent = "未対応";
       opt.disabled = true;
       repairSelect.appendChild(opt);
-
       repairSelect.disabled = true;
       console.log("⚠️ 故障内容は未対応のためグレーアウト");
       return;
     }
 
-    // 対応済み → 通常表示
     repairSelect.disabled = false;
 
     data.repairs.forEach(r => {
@@ -80,9 +68,6 @@ async function loadRepairs() {
   }
 }
 
-// ------------------------------
-// オプションチェックボックス
-// ------------------------------
 async function loadOptions() {
   console.log("🔍 loadOptions() 実行");
 
@@ -112,9 +97,6 @@ async function loadOptions() {
   }
 }
 
-// ------------------------------
-// 見積もり API 呼び出し
-// ------------------------------
 async function estimate() {
   console.log("🚀 estimate() 実行");
 
@@ -130,21 +112,25 @@ async function estimate() {
 
   try {
     const res = await fetch(url);
+    const contentType = res.headers.get("content-type") || "";
+    const resultArea = document.getElementById("result");
+
+    if (!contentType.includes("application/json")) {
+      throw new Error("JSONレスポンスではありません");
+    }
+
     const data = await res.json();
     console.log("✅ /estimate レスポンス:", data);
 
-    // 未対応エラーの場合
     if (data.error) {
       console.warn("⚠️ 見積もりエラー（内部情報）:", data.error);
-
-      document.getElementById("result").innerHTML = `
+      resultArea.innerHTML = `
         <h2>見積もり結果</h2>
         <p>申し訳ございません。対応しておりません。</p>
       `;
       return;
     }
 
-    // 通常の見積もり表示
     let html = `
       <h2>見積もり結果</h2>
       <p><strong>機種:</strong> ${data.model}</p>
@@ -161,11 +147,10 @@ async function estimate() {
     }
 
     html += `<p><strong>合計:</strong> <span style="font-size:1.2em;">¥${data.total.toLocaleString()}</span></p>`;
-
-    document.getElementById("result").innerHTML = html;
+    resultArea.innerHTML = html;
 
   } catch (err) {
-    console.error("❌ estimate() エラー:", err);
+    console.error("❌ estimate() 通信エラー:", err);
     document.getElementById("result").innerHTML = `
       <h2>見積もり結果</h2>
       <p>申し訳ございません。システムエラーが発生しました。</p>
