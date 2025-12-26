@@ -10,7 +10,7 @@ window.onload = async () => {
 };
 
 // ------------------------------
-// 機種プルダウン（未対応はグレーアウト）
+// 機種プルダウン（全件表示）
 // ------------------------------
 async function loadModels() {
   console.log("🔍 loadModels() 実行");
@@ -23,29 +23,12 @@ async function loadModels() {
     const modelSelect = document.getElementById("model");
     modelSelect.innerHTML = "";
 
-    for (const m of data.models) {
-      console.log(`📡 ${m} の対応状況を確認中...`);
-
-      // 修理内容を取得して対応状況を判定
-      const repairsRes = await fetch(`${API_BASE}/repairs?model=${encodeURIComponent(m)}`);
-      const repairsData = await repairsRes.json();
-      console.log(`🔧 ${m} repairs:`, repairsData);
-
+    data.models.forEach(m => {
       const opt = document.createElement("option");
       opt.value = m;
-
-      if (!repairsData.repairs || repairsData.repairs.length === 0) {
-        // 未対応 → グレーアウト
-        opt.textContent = `${m}（未対応）`;
-        opt.disabled = true;
-        console.log(`⚠️ ${m} は未対応のためグレーアウト`);
-      } else {
-        // 対応済み
-        opt.textContent = m;
-      }
-
+      opt.textContent = m;
       modelSelect.appendChild(opt);
-    }
+    });
 
     modelSelect.addEventListener("change", loadRepairs);
     await loadRepairs();
@@ -56,7 +39,7 @@ async function loadModels() {
 }
 
 // ------------------------------
-// 故障内容プルダウン（機種依存）
+// 故障内容プルダウン（未対応ならグレーアウト）
 // ------------------------------
 async function loadRepairs() {
   const model = document.getElementById("model").value;
@@ -69,6 +52,21 @@ async function loadRepairs() {
 
     const repairSelect = document.getElementById("repair_type");
     repairSelect.innerHTML = "";
+
+    if (!data.repairs || data.repairs.length === 0) {
+      // 未対応 → グレーアウト
+      const opt = document.createElement("option");
+      opt.textContent = "未対応";
+      opt.disabled = true;
+      repairSelect.appendChild(opt);
+
+      repairSelect.disabled = true;
+      console.log("⚠️ 故障内容は未対応のためグレーアウト");
+      return;
+    }
+
+    // 対応済み → 通常表示
+    repairSelect.disabled = false;
 
     data.repairs.forEach(r => {
       const opt = document.createElement("option");
