@@ -4,6 +4,7 @@ const API_BASE = "https://estimate-api-6j8x.onrender.com";
 // 初期ロード
 // ------------------------------
 window.onload = async () => {
+  console.log("📦 ページ読み込み開始");
   await loadModels();
   await loadOptions();
 };
@@ -12,21 +13,34 @@ window.onload = async () => {
 // 機種プルダウン
 // ------------------------------
 async function loadModels() {
-  const res = await fetch(`${API_BASE}/models`);
-  const data = await res.json();
+  console.log("🔍 loadModels() 実行");
 
-  const modelSelect = document.getElementById("model");
-  modelSelect.innerHTML = "";
+  try {
+    const res = await fetch(`${API_BASE}/models`);
+    const data = await res.json();
+    console.log("✅ /models レスポンス:", data);
 
-  data.models.forEach(m => {
-    const opt = document.createElement("option");
-    opt.value = m;
-    opt.textContent = m;
-    modelSelect.appendChild(opt);
-  });
+    const modelSelect = document.getElementById("model");
+    if (!modelSelect) {
+      console.error("❌ model セレクトボックスが見つかりません");
+      return;
+    }
 
-  modelSelect.addEventListener("change", loadRepairs);
-  await loadRepairs();
+    modelSelect.innerHTML = "";
+
+    data.models.forEach(m => {
+      const opt = document.createElement("option");
+      opt.value = m;
+      opt.textContent = m;
+      modelSelect.appendChild(opt);
+    });
+
+    modelSelect.addEventListener("change", loadRepairs);
+    await loadRepairs();
+
+  } catch (err) {
+    console.error("❌ loadModels() エラー:", err);
+  }
 }
 
 // ------------------------------
@@ -34,49 +48,76 @@ async function loadModels() {
 // ------------------------------
 async function loadRepairs() {
   const model = document.getElementById("model").value;
+  console.log("🔍 loadRepairs() 実行 - 選択機種:", model);
 
-  const res = await fetch(`${API_BASE}/repairs?model=${encodeURIComponent(model)}`);
-  const data = await res.json();
+  try {
+    const res = await fetch(`${API_BASE}/repairs?model=${encodeURIComponent(model)}`);
+    const data = await res.json();
+    console.log("✅ /repairs レスポンス:", data);
 
-  const repairSelect = document.getElementById("repair_type");
-  repairSelect.innerHTML = "";
+    const repairSelect = document.getElementById("repair_type");
+    if (!repairSelect) {
+      console.error("❌ repair_type セレクトボックスが見つかりません");
+      return;
+    }
 
-  data.repairs.forEach(r => {
-    const opt = document.createElement("option");
-    opt.value = r;
-    opt.textContent = r;
-    repairSelect.appendChild(opt);
-  });
+    repairSelect.innerHTML = "";
+
+    data.repairs.forEach(r => {
+      const opt = document.createElement("option");
+      opt.value = r;
+      opt.textContent = r;
+      repairSelect.appendChild(opt);
+    });
+
+  } catch (err) {
+    console.error("❌ loadRepairs() エラー:", err);
+  }
 }
 
 // ------------------------------
 // オプションチェックボックス
 // ------------------------------
 async function loadOptions() {
-  const res = await fetch(`${API_BASE}/options`);
-  const data = await res.json();
+  console.log("🔍 loadOptions() 実行");
 
-  const area = document.getElementById("options-area");
-  area.innerHTML = "";
+  try {
+    const res = await fetch(`${API_BASE}/options`);
+    const data = await res.json();
+    console.log("✅ /options レスポンス:", data);
 
-  data.options.forEach(opt => {
-    const div = document.createElement("div");
+    const area = document.getElementById("options-area");
+    if (!area) {
+      console.error("❌ options-area が見つかりません");
+      return;
+    }
 
-    div.innerHTML = `
-      <label>
-        <input type="checkbox" value="${opt["オプション名"]}">
-        ${opt["オプション名"]}（¥${opt["料金"].toLocaleString()}）
-      </label>
-    `;
+    area.innerHTML = "";
 
-    area.appendChild(div);
-  });
+    data.options.forEach(opt => {
+      const div = document.createElement("div");
+
+      div.innerHTML = `
+        <label>
+          <input type="checkbox" value="${opt["オプション名"]}">
+          ${opt["オプション名"]}（¥${opt["料金"].toLocaleString()}）
+        </label>
+      `;
+
+      area.appendChild(div);
+    });
+
+  } catch (err) {
+    console.error("❌ loadOptions() エラー:", err);
+  }
 }
 
 // ------------------------------
 // 見積もり API 呼び出し
 // ------------------------------
 async function estimate() {
+  console.log("🚀 estimate() 実行");
+
   const model = document.getElementById("model").value;
   const repair = document.getElementById("repair_type").value;
 
@@ -85,31 +126,39 @@ async function estimate() {
     .join(",");
 
   const url = `${API_BASE}/estimate?model=${encodeURIComponent(model)}&repair_type=${encodeURIComponent(repair)}&options=${encodeURIComponent(selectedOptions)}`;
+  console.log("📡 API 呼び出しURL:", url);
 
-  const res = await fetch(url);
-  const data = await res.json();
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    console.log("✅ /estimate レスポンス:", data);
 
-  if (data.error) {
-    document.getElementById("result").innerHTML = `<strong>エラー:</strong> ${data.error}`;
-    return;
+    if (data.error) {
+      document.getElementById("result").innerHTML = `<strong>エラー:</strong> ${data.error}`;
+      return;
+    }
+
+    let html = `
+      <h2>見積もり結果</h2>
+      <p><strong>機種:</strong> ${data.model}</p>
+      <p><strong>故障内容:</strong> ${data.repair_type}</p>
+      <p><strong>基本料金:</strong> ¥${data.base_price.toLocaleString()}</p>
+    `;
+
+    if (data.options.length > 0) {
+      html += `<p><strong>オプション:</strong></p><ul>`;
+      data.options.forEach(opt => {
+        html += `<li>${opt.name}：¥${opt.price.toLocaleString()}</li>`;
+      });
+      html += `</ul>`;
+    }
+
+    html += `<p><strong>合計:</strong> <span style="font-size:1.2em;">¥${data.total.toLocaleString()}</span></p>`;
+
+    document.getElementById("result").innerHTML = html;
+
+  } catch (err) {
+    console.error("❌ estimate() エラー:", err);
+    document.getElementById("result").innerHTML = `<strong>通信エラー:</strong> ${err.message}`;
   }
-
-  let html = `
-    <h2>見積もり結果</h2>
-    <p><strong>機種:</strong> ${data.model}</p>
-    <p><strong>故障内容:</strong> ${data.repair_type}</p>
-    <p><strong>基本料金:</strong> ¥${data.base_price.toLocaleString()}</p>
-  `;
-
-  if (data.options.length > 0) {
-    html += `<p><strong>オプション:</strong></p><ul>`;
-    data.options.forEach(opt => {
-      html += `<li>${opt.name}：¥${opt.price.toLocaleString()}</li>`;
-    });
-    html += `</ul>`;
-  }
-
-  html += `<p><strong>合計:</strong> <span style="font-size:1.2em;">¥${data.total.toLocaleString()}</span></p>`;
-
-  document.getElementById("result").innerHTML = html;
 }
