@@ -10,7 +10,7 @@ window.onload = async () => {
 };
 
 // ------------------------------
-// 機種プルダウン
+// 機種プルダウン（未対応はグレーアウト）
 // ------------------------------
 async function loadModels() {
   console.log("🔍 loadModels() 実行");
@@ -21,19 +21,31 @@ async function loadModels() {
     console.log("✅ /models レスポンス:", data);
 
     const modelSelect = document.getElementById("model");
-    if (!modelSelect) {
-      console.error("❌ model セレクトボックスが見つかりません");
-      return;
-    }
-
     modelSelect.innerHTML = "";
 
-    data.models.forEach(m => {
+    for (const m of data.models) {
+      console.log(`📡 ${m} の対応状況を確認中...`);
+
+      // 修理内容を取得して対応状況を判定
+      const repairsRes = await fetch(`${API_BASE}/repairs?model=${encodeURIComponent(m)}`);
+      const repairsData = await repairsRes.json();
+      console.log(`🔧 ${m} repairs:`, repairsData);
+
       const opt = document.createElement("option");
       opt.value = m;
-      opt.textContent = m;
+
+      if (!repairsData.repairs || repairsData.repairs.length === 0) {
+        // 未対応 → グレーアウト
+        opt.textContent = `${m}（未対応）`;
+        opt.disabled = true;
+        console.log(`⚠️ ${m} は未対応のためグレーアウト`);
+      } else {
+        // 対応済み
+        opt.textContent = m;
+      }
+
       modelSelect.appendChild(opt);
-    });
+    }
 
     modelSelect.addEventListener("change", loadRepairs);
     await loadRepairs();
@@ -56,11 +68,6 @@ async function loadRepairs() {
     console.log("✅ /repairs レスポンス:", data);
 
     const repairSelect = document.getElementById("repair_type");
-    if (!repairSelect) {
-      console.error("❌ repair_type セレクトボックスが見つかりません");
-      return;
-    }
-
     repairSelect.innerHTML = "";
 
     data.repairs.forEach(r => {
@@ -87,11 +94,6 @@ async function loadOptions() {
     console.log("✅ /options レスポンス:", data);
 
     const area = document.getElementById("options-area");
-    if (!area) {
-      console.error("❌ options-area が見つかりません");
-      return;
-    }
-
     area.innerHTML = "";
 
     data.options.forEach(opt => {
