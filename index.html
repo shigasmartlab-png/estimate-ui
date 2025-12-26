@@ -2,26 +2,94 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>修理見積もりフォーム</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>修理見積もり</title>
+
   <style>
-    body { font-family: sans-serif; padding: 2em; }
-    label { display: block; margin-top: 1em; }
-    input, select { width: 300px; padding: 0.5em; }
-    button { margin-top: 1em; padding: 0.5em 1em; }
-    #result { margin-top: 2em; background: #f0f0f0; padding: 1em; }
+    body {
+      font-family: sans-serif;
+      padding: 1.5em;
+      max-width: 600px;
+      margin: auto;
+      background: #fafafa;
+    }
+
+    h1 {
+      font-size: 1.4em;
+      text-align: center;
+      margin-bottom: 1em;
+    }
+
+    label {
+      display: block;
+      margin-top: 1em;
+      font-weight: bold;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 0.8em;
+      font-size: 1em;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      margin-top: 0.3em;
+    }
+
+    button {
+      width: 100%;
+      padding: 1em;
+      margin-top: 1.5em;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1.1em;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #005fcc;
+    }
+
+    #options-area div {
+      margin-top: 0.5em;
+    }
+
+    #result {
+      margin-top: 2em;
+      background: white;
+      padding: 1.2em;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.2em;
+      }
+      button {
+        font-size: 1em;
+      }
+    }
   </style>
 </head>
+
 <body>
+
   <h1>修理見積もりフォーム</h1>
 
-  <label>機種（例：iPhone 12）</label>
-  <input type="text" id="model" placeholder="iPhone 12">
+  <label>機種</label>
+  <select id="model"></select>
 
-  <label>故障内容（例：画面交換（最安））</label>
-  <input type="text" id="repair_type" placeholder="画面交換（最安）">
+  <label>故障内容</label>
+  <select id="repair_type"></select>
 
-  <label>オプション（カンマ区切り）</label>
-  <input type="text" id="options" placeholder="抗菌ガラスコーティング（片面）,バッテリー大容量化">
+  <label>オプション</label>
+  <div id="options-area"></div>
 
   <button onclick="estimate()">見積もりを取得</button>
 
