@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>修理見積もりフォーム</title>
+  <style>
+    body { font-family: sans-serif; padding: 2em; }
+    label { display: block; margin-top: 1em; }
+    input, select { width: 300px; padding: 0.5em; }
+    button { margin-top: 1em; padding: 0.5em 1em; }
+    #result { margin-top: 2em; background: #f0f0f0; padding: 1em; }
+  </style>
+</head>
+<body>
+  <h1>修理見積もりフォーム</h1>
+
+  <label>機種（例：iPhone 12）</label>
+  <input type="text" id="model" placeholder="iPhone 12">
+
+  <label>故障内容（例：画面交換（最安））</label>
+  <input type="text" id="repair_type" placeholder="画面交換（最安）">
+
+  <label>オプション（カンマ区切り）</label>
+  <input type="text" id="options" placeholder="抗菌ガラスコーティング（片面）,バッテリー大容量化">
+
+  <button onclick="estimate()">見積もりを取得</button>
+
+  <div id="result"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
