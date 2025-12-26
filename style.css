@@ -1,0 +1,56 @@
+body {
+  font-family: sans-serif;
+  padding: 20px;
+  max-width: 600px;
+  margin: auto;
+}
+
+h1 {
+  font-size: 1.8em;
+  margin-bottom: 20px;
+}
+
+label, select, fieldset, button {
+  display: block;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+select, button {
+  padding: 8px;
+  font-size: 1em;
+}
+
+fieldset {
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+legend {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+#options-area {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.option-item input[type="checkbox"] {
+  transform: scale(1.2);
+}
+
+#result {
+  margin-top: 30px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-left: 4px solid #007bff;
+}
