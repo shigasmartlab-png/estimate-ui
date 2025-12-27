@@ -150,7 +150,15 @@ async function estimate() {
       return;
     }
 
+    // ------------------------------
+    // 合計金額の端数処理（100円未満切り上げ）
+    // ------------------------------
+    let total = data.total;
+    total = Math.ceil(total / 100) * 100;
+
+    // ------------------------------
     // 通常の見積もり表示
+    // ------------------------------
     let html = `
       <h2>見積もり結果</h2>
       <p><strong>機種:</strong> ${data.model}</p>
@@ -166,7 +174,7 @@ async function estimate() {
       html += `</ul>`;
     }
 
-    html += `<p><strong>合計:</strong> <span style="font-size:1.2em;">¥${data.total.toLocaleString()}</span></p>`;
+    html += `<p><strong>合計:</strong> <span style="font-size:1.2em;">¥${total.toLocaleString()}</span></p>`;
     resultArea.innerHTML = html;
 
   } catch (err) {
