@@ -1,24 +1,18 @@
-const API_BASE = "https://estimate-api-6j8x.onrender.com";
 
-// ------------------------------
-// 初期ロード
-// ------------------------------
+// ======== ここだけ iPhone / Android で変える =========
+// iPhone 用
+const API_BASE = "https://estimate-api-6j8x.onrender.com";
+// =====================================================
+
 window.onload = async () => {
-  console.log("📦 ページ読み込み開始");
   await loadModels();
   await loadOptions();
 };
 
-// ------------------------------
-// 機種プルダウン（全件表示）
-// ------------------------------
 async function loadModels() {
-  console.log("🔍 loadModels() 実行");
-
   try {
     const res = await fetch(`${API_BASE}/models`);
     const data = await res.json();
-    console.log("✅ /models レスポンス:", data);
 
     const modelSelect = document.getElementById("model");
     modelSelect.innerHTML = "";
@@ -32,62 +26,51 @@ async function loadModels() {
 
     modelSelect.addEventListener("change", loadRepairs);
     await loadRepairs();
-
   } catch (err) {
-    console.error("❌ loadModels() エラー:", err);
+    console.error("loadModels error:", err);
   }
 }
 
-// ------------------------------
-// 故障内容プルダウン（未対応ならグレーアウト）
-// ------------------------------
 async function loadRepairs() {
   const model = document.getElementById("model").value;
-  console.log("🔍 loadRepairs() 実行 - 選択機種:", model);
 
   try {
     const res = await fetch(`${API_BASE}/repairs?model=${encodeURIComponent(model)}`);
     const data = await res.json();
-    console.log("✅ /repairs レスポンス:", data);
 
     const repairSelect = document.getElementById("repair_type");
     repairSelect.innerHTML = "";
 
-    if (!data.repairs || data.repairs.length === 0) {
-      const opt = document.createElement("option");
-      opt.textContent = "未対応";
-      opt.disabled = true;
-      repairSelect.appendChild(opt);
-
-      repairSelect.disabled = true;
-      console.log("⚠️ 故障内容は未対応のためグレーアウト");
-      return;
-    }
-
-    repairSelect.disabled = false;
+    let availableCount = 0;
 
     data.repairs.forEach(r => {
       const opt = document.createElement("option");
-      opt.value = r;
-      opt.textContent = r;
+      opt.value = r.name;
+
+      if (r.status === "available") {
+        opt.textContent = r.name;
+        availableCount++;
+      } else if (r.status === "soldout") {
+        opt.textContent = `${r.name}（SOLD OUT）`;
+        opt.disabled = true;
+      } else if (r.status === "unsupported") {
+        opt.textContent = `${r.name}（未対応）`;
+        opt.disabled = true;
+      }
+
       repairSelect.appendChild(opt);
     });
 
+    repairSelect.disabled = availableCount === 0;
   } catch (err) {
-    console.error("❌ loadRepairs() エラー:", err);
+    console.error("loadRepairs error:", err);
   }
 }
 
-// ------------------------------
-// オプションチェックボックス（ズレない構造）
-// ------------------------------
 async function loadOptions() {
-  console.log("🔍 loadOptions() 実行");
-
   try {
     const res = await fetch(`${API_BASE}/options`);
     const data = await res.json();
-    console.log("✅ /options レスポンス:", data);
 
     const area = document.getElementById("options-area");
     area.innerHTML = "";
@@ -105,18 +88,12 @@ async function loadOptions() {
 
       area.appendChild(div);
     });
-
   } catch (err) {
-    console.error("❌ loadOptions() エラー:", err);
+    console.error("loadOptions error:", err);
   }
 }
 
-// ------------------------------
-// 見積もり API 呼び出し
-// ------------------------------
 async function estimate() {
-  console.log("🚀 estimate() 実行");
-
   const model = document.getElementById("model").value;
   const repair = document.getElementById("repair_type").value;
 
@@ -125,40 +102,47 @@ async function estimate() {
     .join(",");
 
   const url = `${API_BASE}/estimate?model=${encodeURIComponent(model)}&repair_type=${encodeURIComponent(repair)}&options=${encodeURIComponent(selectedOptions)}`;
-  console.log("📡 API 呼び出しURL:", url);
+
+  const resultArea = document.getElementById("result");
 
   try {
     const res = await fetch(url);
     const contentType = res.headers.get("content-type") || "";
-    const resultArea = document.getElementById("result");
 
     if (!contentType.includes("application/json")) {
       throw new Error("JSONレスポンスではありません");
     }
 
     const data = await res.json();
-    console.log("✅ /estimate レスポンス:", data);
 
-    // 未対応エラーの場合
     if (data.error) {
-      console.warn("⚠️ 見積もりエラー（内部情報）:", data.error);
+      if (data.error === "未対応") {
+        resultArea.innerHTML = `
+          <h2>見積もり結果</h2>
+          <p>申し訳ございません。この修理は未対応です。</p>
+        `;
+        return;
+      }
+
+      if (data.error === "SOLD OUT") {
+        resultArea.innerHTML = `
+          <h2>見積もり結果</h2>
+          <p>申し訳ございません。在庫切れ（SOLD OUT）のため対応できません。</p>
+        `;
+        return;
+      }
 
       resultArea.innerHTML = `
         <h2>見積もり結果</h2>
-        <p>申し訳ございません。対応しておりません。</p>
+        <p>申し訳ございません。エラーが発生しました。</p>
       `;
+      console.warn("estimate error:", data.error);
       return;
     }
 
-    // ------------------------------
-    // 合計金額の端数処理（100円未満切り上げ）
-    // ------------------------------
     let total = data.total;
     total = Math.ceil(total / 100) * 100;
 
-    // ------------------------------
-    // 通常の見積もり表示
-    // ------------------------------
     let html = `
       <h2>見積もり結果</h2>
       <p><strong>機種:</strong> ${data.model}</p>
@@ -178,8 +162,8 @@ async function estimate() {
     resultArea.innerHTML = html;
 
   } catch (err) {
-    console.error("❌ estimate() 通信エラー:", err);
-    document.getElementById("result").innerHTML = `
+    console.error("estimate error:", err);
+    resultArea.innerHTML = `
       <h2>見積もり結果</h2>
       <p>申し訳ございません。システムエラーが発生しました。</p>
     `;
