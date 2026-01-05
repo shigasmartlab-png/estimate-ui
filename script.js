@@ -1,8 +1,6 @@
-
-// ======== ここだけ iPhone / Android で変える =========
-// iPhone 用
+// ======== ここだけ iPhone / Android で切り替える =========
 const API_BASE = "https://estimate-api-6j8x.onrender.com";
-// =====================================================
+// ==========================================================
 
 window.onload = async () => {
   await loadModels();
