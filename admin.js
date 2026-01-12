@@ -127,4 +127,3 @@ document.getElementById("load-list-btn").onclick = async () => {
 // 初期読み込み
 // ------------------------
 loadHolidays();
-

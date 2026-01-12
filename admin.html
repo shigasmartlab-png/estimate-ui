@@ -25,7 +25,6 @@
     li { margin-bottom: 6px; }
   </style>
 </head>
-<script src="admin.js"></script>
 <body>
 
 <h1>管理画面（予約システム）</h1>
@@ -58,97 +57,6 @@
   <ul id="reservation-list"></ul>
 </section>
 
-
-<script>
-const API_BASE = "https://あなたのrender-url.onrender.com";
-
-// ------------------------
-// 休みの日一覧の読み込み
-// ------------------------
-async function loadHolidays() {
-  const res = await fetch(`${API_BASE}/holidays`);
-  const data = await res.json();
-
-  const list = document.getElementById("holiday-list");
-  list.innerHTML = "";
-
-  data.holidays.forEach(d => {
-    const li = document.createElement("li");
-    li.textContent = d + " ";
-
-    const btn = document.createElement("button");
-    btn.textContent = "削除";
-    btn.onclick = () => removeHoliday(d);
-
-    li.appendChild(btn);
-    list.appendChild(li);
-  });
-}
-
-// ------------------------
-// 休みの日追加
-// ------------------------
-document.getElementById("add-holiday-btn").onclick = async () => {
-  const date = document.getElementById("holiday-date").value;
-  if (!date) return alert("日付を選択してください");
-
-  const res = await fetch(`${API_BASE}/holidays/add`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({date})
-  });
-
-  const data = await res.json();
-  alert(data.message);
-  loadHolidays();
-};
-
-// ------------------------
-// 休みの日削除
-// ------------------------
-async function removeHoliday(date) {
-  const res = await fetch(`${API_BASE}/holidays/remove`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({date})
-  });
-
-  const data = await res.json();
-  alert(data.message);
-  loadHolidays();
-}
-
-// ------------------------
-// 予約一覧の読み込み
-// ------------------------
-document.getElementById("load-list-btn").onclick = async () => {
-  const date = document.getElementById("list-date").value;
-
-  const url = date
-    ? `${API_BASE}/list?date=${date}`
-    : `${API_BASE}/list`;
-
-  const res = await fetch(url);
-  const data = await res.json();
-
-  const list = document.getElementById("reservation-list");
-  list.innerHTML = "";
-
-  data.reservations.forEach(r => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <strong>${r.date} ${r.time}</strong><br>
-      ${r.name}（${r.phone}）<br>
-      メニュー：${r.menu}<br>
-      状態：${r.status}
-    `;
-    list.appendChild(li);
-  });
-};
-
-// 初期読み込み
-loadHolidays();
-</script>
-
+<script src="admin.js"></script>
 </body>
 </html>

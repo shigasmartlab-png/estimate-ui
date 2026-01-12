@@ -125,4 +125,3 @@ $("cancel-btn").addEventListener("click", async () => {
     $("cancel-message").innerHTML = `<p class="message error">キャンセル処理でエラーが発生しました。</p>`;
   }
 });
-
