@@ -13,7 +13,7 @@
     }
     .form-row { margin-bottom: 12px; }
     label { display: block; margin-bottom: 4px; }
-    input[type="date"], input[type="text"] {
+    input[type="date"] {
       width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;
     }
     button {
@@ -21,8 +21,11 @@
       border: none; border-radius: 4px; cursor: pointer;
     }
     button:hover { background: #0056b3; }
-    ul { padding-left: 20px; }
-    li { margin-bottom: 6px; }
+    #time-checkboxes label { margin-right: 10px; }
+    span.time-block {
+      padding: 4px 8px; margin: 4px; display: inline-block;
+      background: #ffe0e0; border-radius: 4px;
+    }
   </style>
 </head>
 <body>
@@ -30,19 +33,34 @@
 <h1>管理画面（予約システム）</h1>
 
 <section class="section">
-  <h2>休みの日の設定</h2>
+  <h2>休み時間帯の一括登録</h2>
 
   <div class="form-row">
     <label for="holiday-date">休みにする日</label>
     <input type="date" id="holiday-date">
   </div>
 
-  <button id="add-holiday-btn">休みの日を追加</button>
+  <div class="form-row">
+    <label>休みにする時間帯（複数選択可）</label>
+    <div id="time-checkboxes">
+      <label><input type="checkbox" value="10:00"> 10:00</label>
+      <label><input type="checkbox" value="11:00"> 11:00</label>
+      <label><input type="checkbox" value="12:00"> 12:00</label>
+      <label><input type="checkbox" value="13:00"> 13:00</label>
+      <label><input type="checkbox" value="14:00"> 14:00</label>
+      <label><input type="checkbox" value="15:00"> 15:00</label>
+      <label><input type="checkbox" value="16:00"> 16:00</label>
+      <label><input type="checkbox" value="17:00"> 17:00</label>
+    </div>
+  </div>
 
-  <h3>登録済みの休み</h3>
-  <ul id="holiday-list"></ul>
+  <button id="add-multiple-btn">選択した時間帯を一括登録</button>
 </section>
 
+<section class="section">
+  <h2>休み時間帯カレンダー</h2>
+  <div id="holiday-calendar"></div>
+</section>
 
 <section class="section">
   <h2>予約一覧</h2>
