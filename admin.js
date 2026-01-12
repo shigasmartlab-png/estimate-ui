@@ -1,5 +1,5 @@
 // ★ Render にデプロイされた API の URL を設定してください
-const API_BASE = "https://あなたのrender-url.onrender.com";
+const API_BASE = "https://android-estimate-api.onrender.com";
 
 // ------------------------
 // 休みの日一覧の読み込み
@@ -127,3 +127,4 @@ document.getElementById("load-list-btn").onclick = async () => {
 // 初期読み込み
 // ------------------------
 loadHolidays();
+
