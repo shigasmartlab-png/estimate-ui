@@ -1,169 +1,127 @@
-// ======== ここだけ iPhone / Android で切り替える =========
-const API_BASE = "https://estimate-api-6j8x.onrender.com";
-// ==========================================================
+// ★ RenderにデプロイされたAPIのURLに差し替えてください
+const API_BASE = "https://あなたのサービス名.onrender.com";
 
-window.onload = async () => {
-  await loadModels();
-  await loadOptions();
-};
-
-async function loadModels() {
-  try {
-    const res = await fetch(`${API_BASE}/models`);
-    const data = await res.json();
-
-    const modelSelect = document.getElementById("model");
-    modelSelect.innerHTML = "";
-
-    data.models.forEach(m => {
-      const opt = document.createElement("option");
-      opt.value = m;
-      opt.textContent = m;
-      modelSelect.appendChild(opt);
-    });
-
-    modelSelect.addEventListener("change", loadRepairs);
-    await loadRepairs();
-  } catch (err) {
-    console.error("loadModels error:", err);
-  }
+function $(id) {
+  return document.getElementById(id);
 }
 
-async function loadRepairs() {
-  const model = document.getElementById("model").value;
+// 空き状況の表示
+$("check-availability").addEventListener("click", async () => {
+  const date = $("date").value;
+  if (!date) {
+    $("availability-result").innerHTML = `<p class="message error">日付を選択してください。</p>`;
+    return;
+  }
 
   try {
-    const res = await fetch(`${API_BASE}/repairs?model=${encodeURIComponent(model)}`);
+    const res = await fetch(`${API_BASE}/availability?date=${encodeURIComponent(date)}`);
+    if (!res.ok) throw new Error("APIエラー");
     const data = await res.json();
 
-    const repairSelect = document.getElementById("repair_type");
-    repairSelect.innerHTML = "";
+    // プルダウン用に一度クリア
+    const timeSelect = $("time");
+    timeSelect.innerHTML = "";
 
-    let availableCount = 0;
+    let html = `<p>${date} の空き状況：</p>`;
+    html += `<div>`;
+    data.slots.forEach(slot => {
+      const cls = slot.status === "available" ? "available" : "reserved";
+      html += `<span class="slot ${cls}">${slot.time}</span>`;
 
-    data.repairs.forEach(r => {
-      const opt = document.createElement("option");
-      opt.value = r.name;
-
-      if (r.status === "available") {
-        opt.textContent = r.name;
-        availableCount++;
-      } else if (r.status === "soldout") {
-        opt.textContent = `${r.name}（SOLD OUT）`;
-        opt.disabled = true;
-      } else if (r.status === "unsupported") {
-        opt.textContent = `${r.name}（未対応）`;
-        opt.disabled = true;
+      // セレクトにも反映（空きのみ選択可能にする）
+      if (slot.status === "available") {
+        const opt = document.createElement("option");
+        opt.value = slot.time;
+        opt.textContent = slot.time;
+        timeSelect.appendChild(opt);
       }
-
-      repairSelect.appendChild(opt);
     });
+    html += `</div>`;
 
-    repairSelect.disabled = availableCount === 0;
-  } catch (err) {
-    console.error("loadRepairs error:", err);
-  }
-}
-
-async function loadOptions() {
-  try {
-    const res = await fetch(`${API_BASE}/options`);
-    const data = await res.json();
-
-    const area = document.getElementById("options-area");
-    area.innerHTML = "";
-
-    data.options.forEach(opt => {
-      const div = document.createElement("div");
-      div.className = "option-item";
-
-      div.innerHTML = `
-        <label>
-          <input type="checkbox" value="${opt["オプション名"]}">
-          <span>${opt["オプション名"]}（¥${opt["料金"].toLocaleString()}）</span>
-        </label>
-      `;
-
-      area.appendChild(div);
-    });
-  } catch (err) {
-    console.error("loadOptions error:", err);
-  }
-}
-
-async function estimate() {
-  const model = document.getElementById("model").value;
-  const repair = document.getElementById("repair_type").value;
-
-  const selectedOptions = [...document.querySelectorAll("#options-area input:checked")]
-    .map(c => c.value)
-    .join(",");
-
-  const url = `${API_BASE}/estimate?model=${encodeURIComponent(model)}&repair_type=${encodeURIComponent(repair)}&options=${encodeURIComponent(selectedOptions)}`;
-
-  const resultArea = document.getElementById("result");
-
-  try {
-    const res = await fetch(url);
-    const contentType = res.headers.get("content-type") || "";
-
-    if (!contentType.includes("application/json")) {
-      throw new Error("JSONレスポンスではありません");
+    if (!timeSelect.options.length) {
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "この日は満席です";
+      timeSelect.appendChild(opt);
     }
 
+    $("availability-result").innerHTML = html;
+  } catch (e) {
+    console.error(e);
+    $("availability-result").innerHTML = `<p class="message error">空き状況の取得に失敗しました。</p>`;
+  }
+});
+
+// 予約登録
+$("reserve-btn").addEventListener("click", async () => {
+  const date = $("date").value;
+  const time = $("time").value;
+  const name = $("name").value.trim();
+  const phone = $("phone").value.trim();
+  const menu = $("menu").value.trim();
+  const memo = $("memo").value.trim();
+
+  if (!date || !time || !name || !phone || !menu) {
+    $("reserve-message").innerHTML = `<p class="message error">日付・時間・お名前・電話番号・メニューは必須です。</p>`;
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/reserve`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ date, time, name, phone, menu, memo })
+    });
+
     const data = await res.json();
-
-    if (data.error) {
-      if (data.error === "未対応") {
-        resultArea.innerHTML = `
-          <h2>見積もり結果</h2>
-          <p>申し訳ございません。この修理は未対応です。</p>
-        `;
-        return;
-      }
-
-      if (data.error === "SOLD OUT") {
-        resultArea.innerHTML = `
-          <h2>見積もり結果</h2>
-          <p>申し訳ございません。在庫切れ（SOLD OUT）のため対応できません。</p>
-        `;
-        return;
-      }
-
-      resultArea.innerHTML = `
-        <h2>見積もり結果</h2>
-        <p>申し訳ございません。エラーが発生しました。</p>
-      `;
-      console.warn("estimate error:", data.error);
+    if (!res.ok) {
+      $("reserve-message").innerHTML = `<p class="message error">${data.detail || "予約に失敗しました。"}</p>`;
       return;
     }
 
-    let total = data.total;
-    total = Math.ceil(total / 100) * 100;
-
-    let html = `
-      <h2>見積もり結果</h2>
-      <p><strong>機種:</strong> ${data.model}</p>
-      <p><strong>故障内容:</strong> ${data.repair_type}</p>
-      <p><strong>基本料金:</strong> ¥${data.base_price.toLocaleString()}</p>
+    $("reserve-message").innerHTML = `
+      <p class="message success">
+        ${data.message}<br>
+        予約ID：<strong>${data.reservation_id}</strong><br>
+        キャンセル時に必要になるので、控えておいてください。
+      </p>
     `;
 
-    if (data.options.length > 0) {
-      html += `<p><strong>オプション:</strong></p><ul>`;
-      data.options.forEach(opt => {
-        html += `<li>${opt.name}：¥${opt.price.toLocaleString()}</li>`;
-      });
-      html += `</ul>`;
+    // 予約後に空き状況を再取得して更新
+    $("check-availability").click();
+  } catch (e) {
+    console.error(e);
+    $("reserve-message").innerHTML = `<p class="message error">予約処理でエラーが発生しました。</p>`;
+  }
+});
+
+// キャンセル
+$("cancel-btn").addEventListener("click", async () => {
+  const id = $("cancel-id").value.trim();
+  if (!id) {
+    $("cancel-message").innerHTML = `<p class="message error">予約IDを入力してください。</p>`;
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/cancel`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reservation_id: id })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      $("cancel-message").innerHTML = `<p class="message error">${data.detail || "キャンセルに失敗しました。"}</p>`;
+      return;
     }
 
-    html += `<p><strong>合計:</strong> <span style="font-size:1.2em;">¥${total.toLocaleString()}</span></p>`;
-    resultArea.innerHTML = html;
+    $("cancel-message").innerHTML = `<p class="message success">${data.message}</p>`;
 
-  } catch (err) {
-    console.error("estimate error:", err);
-    resultArea.innerHTML = `
-      <h2>見積もり結果</h2>
-      <p>申し訳ございません。システムエラーが発生しました。</p>
-    `;
+    // キャンセル後に空き状況を再取得
+    $("check-availability").click();
+  } catch (e) {
+    console.error(e);
+    $("cancel-message").innerHTML = `<p class="message error">キャンセル処理でエラーが発生しました。</p>`;
   }
-}
+});

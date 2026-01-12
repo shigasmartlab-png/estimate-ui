@@ -2,29 +2,62 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>修理見積もりフォーム</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>予約システム（スマホ修理店用）</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>修理見積もりシミュレータ</h1>
 
-  <form>
-    <label for="model">機種:</label>
-    <select id="model"></select>
+  <h1>予約システム</h1>
 
-    <label for="repair_type">故障内容:</label>
-    <select id="repair_type"></select>
+  <section class="section">
+    <h2>① 日付と時間を選ぶ</h2>
+    <div class="form-row">
+      <label for="date">日付</label>
+      <input type="date" id="date">
+    </div>
+    <div class="form-row">
+      <label for="time">時間</label>
+      <select id="time">
+        <option value="">日付を選択してください</option>
+      </select>
+    </div>
+    <button id="check-availability">空き状況を確認</button>
+    <div id="availability-result"></div>
+  </section>
 
-    <fieldset>
-      <legend>オプション</legend>
-      <div id="options-area"></div>
-    </fieldset>
+  <section class="section">
+    <h2>② お客様情報を入力</h2>
+    <div class="form-row">
+      <label for="name">お名前</label>
+      <input type="text" id="name">
+    </div>
+    <div class="form-row">
+      <label for="phone">電話番号</label>
+      <input type="tel" id="phone">
+    </div>
+    <div class="form-row">
+      <label for="menu">メニュー</label>
+      <input type="text" id="menu" placeholder="例：画面修理／バッテリー交換">
+    </div>
+    <div class="form-row">
+      <label for="memo">メモ</label>
+      <textarea id="memo" rows="3" placeholder="気になる点などあればご記入ください"></textarea>
+    </div>
+    <button id="reserve-btn">この内容で予約する</button>
+    <div id="reserve-message"></div>
+  </section>
 
-    <button type="button" onclick="estimate()">金額を表示（目安）</button>
-  </form>
-
-  <div id="result"></div>
+  <section class="section">
+    <h2>③ 予約のキャンセル</h2>
+    <p>予約時に表示された「予約ID」を入力してください。</p>
+    <div class="form-row">
+      <label for="cancel-id">予約ID</label>
+      <input type="text" id="cancel-id">
+    </div>
+    <button id="cancel-btn">予約をキャンセルする</button>
+    <div id="cancel-message"></div>
+  </section>
 
   <script src="script.js"></script>
 </body>
