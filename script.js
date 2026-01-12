@@ -1,5 +1,5 @@
 // ★ RenderにデプロイされたAPIのURLに差し替えてください
-const API_BASE = "https://あなたのサービス名.onrender.com";
+const API_BASE = "https://android-estimate-api.onrender.com";
 
 function $(id) {
   return document.getElementById(id);
@@ -125,3 +125,4 @@ $("cancel-btn").addEventListener("click", async () => {
     $("cancel-message").innerHTML = `<p class="message error">キャンセル処理でエラーが発生しました。</p>`;
   }
 });
+
