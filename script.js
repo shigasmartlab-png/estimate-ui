@@ -5,14 +5,113 @@ const API_BASE = "https://android-estimate-api.onrender.com";
 
 let formData = {};
 
-
+// ===============================
+// ステップ切り替え
+// ===============================
 function showStep(id) {
   document.querySelectorAll(".step").forEach(s => s.style.display = "none");
   document.getElementById(id).style.display = "block";
 }
 showStep("step1");
 
+
+// ===============================
+// 前へ戻る（入力保持）
+// ===============================
+function backTo(stepId) {
+  restoreInputs(stepId);
+  showStep(stepId);
+}
+
+
+// ===============================
+// 入力復元
+// ===============================
+function restoreInputs(stepId) {
+
+  // STEP1
+  if (stepId === "step1") {
+    document.getElementById("name").value = formData.name || "";
+    document.getElementById("line_name").value = formData.line_name || "";
+    document.getElementById("address").value = formData.address || "";
+  }
+
+  // STEP2
+  if (stepId === "step2") {
+    if (formData.menu) {
+      document.querySelector(`input[name="menu"][value="${formData.menu}"]`).checked = true;
+    }
+  }
+
+  // STEP3-A：画面修理
+  if (stepId === "step_screen") {
+    if (formData.screen_os) {
+      document.querySelector(`input[name="screen_os"][value="${formData.screen_os}"]`).checked = true;
+    }
+    document.getElementById("screen_model").value = formData.screen_model || "";
+    if (formData.screen_quality) {
+      document.querySelector(`input[name="screen_quality"][value="${formData.screen_quality}"]`).checked = true;
+    }
+  }
+
+  // STEP3-B：バッテリー交換
+  if (stepId === "step_battery") {
+    if (formData.battery_os) {
+      document.querySelector(`input[name="battery_os"][value="${formData.battery_os}"]`).checked = true;
+    }
+    document.getElementById("battery_model").value = formData.battery_model || "";
+    if (formData.battery_quality) {
+      document.querySelector(`input[name="battery_quality"][value="${formData.battery_quality}"]`).checked = true;
+    }
+  }
+
+  // STEP3-C：ガラスコーティング
+  if (stepId === "step_coating") {
+    if (formData.coat_type) {
+      document.querySelector(`input[name="coat_type"][value="${formData.coat_type}"]`).checked = true;
+    }
+  }
+
+  // STEP3-D：複数メニュー
+  if (stepId === "step_multi") {
+    if (formData.multi_menu) {
+      formData.multi_menu.forEach(v => {
+        const cb = document.querySelector(`input[name="multi_menu"][value="${v}"]`);
+        if (cb) cb.checked = true;
+      });
+    }
+  }
+
+  // STEP4：複数用の機種入力
+  if (stepId === "step_multi_detail") {
+    if (formData.multi_os) {
+      document.querySelector(`input[name="multi_os"][value="${formData.multi_os}"]`).checked = true;
+    }
+    document.getElementById("multi_model").value = formData.multi_model || "";
+
+    if (formData.multi_battery) {
+      document.querySelector(`input[name="multi_battery"][value="${formData.multi_battery}"]`).checked = true;
+    }
+    if (formData.multi_screen) {
+      document.querySelector(`input[name="multi_screen"][value="${formData.multi_screen}"]`).checked = true;
+    }
+  }
+
+  // STEP5：希望日
+  if (stepId === "step5") {
+    document.getElementById("date1").value = formData.date1 || "";
+    document.getElementById("time1").value = formData.time1 || "";
+    document.getElementById("date2").value = formData.date2 || "";
+    document.getElementById("time2").value = formData.time2 || "";
+    document.getElementById("date3").value = formData.date3 || "";
+    document.getElementById("time3").value = formData.time3 || "";
+  }
+}
+
+
+// ===============================
 // STEP1 → STEP2
+// ===============================
 function goStep2() {
   formData.name = document.getElementById("name").value;
   formData.line_name = document.getElementById("line_name").value;
@@ -26,7 +125,10 @@ function goStep2() {
   showStep("step2");
 }
 
+
+// ===============================
 // STEP2 → メニュー別画面
+// ===============================
 function selectMenu() {
   const menu = document.querySelector("input[name='menu']:checked");
   if (!menu) return alert("メニューを選択してください");
@@ -39,7 +141,10 @@ function selectMenu() {
   if (menu.value === "multi") showStep("step_multi");
 }
 
+
+// ===============================
 // STEP3-A：画面修理
+// ===============================
 function saveScreen() {
   const os = document.querySelector("input[name='screen_os']:checked");
   const quality = document.querySelector("input[name='screen_quality']:checked");
@@ -55,7 +160,10 @@ function saveScreen() {
   showStep("step5");
 }
 
+
+// ===============================
 // STEP3-B：バッテリー交換
+// ===============================
 function saveBattery() {
   const os = document.querySelector("input[name='battery_os']:checked");
   const quality = document.querySelector("input[name='battery_quality']:checked");
@@ -71,7 +179,10 @@ function saveBattery() {
   showStep("step5");
 }
 
+
+// ===============================
 // STEP3-C：ガラスコーティング
+// ===============================
 function saveCoating() {
   const type = document.querySelector("input[name='coat_type']:checked");
   if (!type) return alert("選択してください");
@@ -81,7 +192,10 @@ function saveCoating() {
   showStep("step5");
 }
 
+
+// ===============================
 // STEP3-D：複数メニュー
+// ===============================
 function saveMultiMenu() {
   const selected = [...document.querySelectorAll("input[name='multi_menu']:checked")]
     .map(cb => cb.value);
@@ -93,7 +207,10 @@ function saveMultiMenu() {
   showStep("step_multi_detail");
 }
 
+
+// ===============================
 // STEP4：複数用の機種入力
+// ===============================
 function saveMultiDetail() {
   const os = document.querySelector("input[name='multi_os']:checked");
   if (!os) return alert("機種を選択してください");
@@ -112,7 +229,10 @@ function saveMultiDetail() {
   showStep("step5");
 }
 
+
+// ===============================
 // STEP5：希望日入力
+// ===============================
 function saveDates() {
   formData.date1 = document.getElementById("date1").value;
   formData.time1 = document.getElementById("time1").value;
@@ -132,7 +252,10 @@ function saveDates() {
   showStep("step6");
 }
 
+
+// ===============================
 // STEP6：確認画面
+// ===============================
 function buildConfirm() {
   const area = document.getElementById("confirm-area");
 
@@ -155,7 +278,10 @@ function buildConfirm() {
   `;
 }
 
+
+// ===============================
 // API送信
+// ===============================
 async function submitForm() {
   const payload = {
     date: formData.date1,

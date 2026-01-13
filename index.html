@@ -13,119 +13,152 @@
   <!-- STEP 1 -->
   <section class="step" id="step1">
     <h2>STEP 1 / 6<br>基本情報</h2>
-    <label>名前</label><input type="text" id="name">
-    <label>LINE表示名</label><input type="text" id="line_name">
-    <label>住所</label><input type="text" id="address">
+
+    <label>名前</label>
+    <input type="text" id="name">
+
+    <label>LINE表示名</label>
+    <input type="text" id="line_name">
+
+    <label>住所</label>
+    <input type="text" id="address">
+
     <button onclick="goStep2()">次へ進む</button>
   </section>
 
   <!-- STEP 2 -->
   <section class="step" id="step2">
     <h2>STEP 2 / 6<br>メニュー選択</h2>
-    <label><input type="radio" name="menu" value="screen">画面修理</label>
-    <label><input type="radio" name="menu" value="battery">バッテリー交換</label>
-    <label><input type="radio" name="menu" value="coating">ガラスコーティング</label>
-    <label><input type="radio" name="menu" value="multi">複数組み合わせ</label>
-    <button onclick="selectMenu()">次へ進む</button>
-<button onclick="showStep('step1')">最初に戻る</button>
 
+    <label><input type="radio" name="menu" value="screen"> 画面修理</label>
+    <label><input type="radio" name="menu" value="battery"> バッテリー交換</label>
+    <label><input type="radio" name="menu" value="coating"> ガラスコーティング</label>
+    <label><input type="radio" name="menu" value="multi"> 複数組み合わせ</label>
+
+    <button onclick="selectMenu()">次へ進む</button>
+    <button onclick="backTo('step1')">前の画面に戻る</button>
   </section>
 
-  <!-- STEP 3-A -->
+  <!-- STEP 3-A：画面修理 -->
   <section class="step" id="step_screen">
     <h2>STEP 3 / 6<br>画面修理</h2>
-    <label>機種</label>
-    <label><input type="radio" name="screen_os" value="iPhone">iPhone</label>
-    <label><input type="radio" name="screen_os" value="Android">Android</label>
-    <label>機種詳細</label><input type="text" id="screen_model">
-    <label>画面品質</label>
-    <label><input type="radio" name="screen_quality" value="LCD">LCD</label>
-    <label><input type="radio" name="screen_quality" value="OLED">OLED</label>
-    <label><input type="radio" name="screen_quality" value="refurb">再生品</label>
-    <button onclick="saveScreen()">次へ進む</button>
-<button onclick="showStep('step1')">最初に戻る</button>
 
+    <label>機種</label>
+    <label><input type="radio" name="screen_os" value="iPhone"> iPhone</label>
+    <label><input type="radio" name="screen_os" value="Android"> Android</label>
+
+    <label>機種詳細</label>
+    <input type="text" id="screen_model">
+
+    <label>画面品質</label>
+    <label><input type="radio" name="screen_quality" value="LCD"> LCD</label>
+    <label><input type="radio" name="screen_quality" value="OLED"> OLED</label>
+    <label><input type="radio" name="screen_quality" value="refurb"> 再生品</label>
+
+    <button onclick="saveScreen()">次へ進む</button>
+    <button onclick="backTo('step2')">前の画面に戻る</button>
   </section>
 
-  <!-- STEP 3-B -->
+  <!-- STEP 3-B：バッテリー交換 -->
   <section class="step" id="step_battery">
     <h2>STEP 3 / 6<br>バッテリー交換</h2>
-    <label>機種</label>
-    <label><input type="radio" name="battery_os" value="iPhone">iPhone</label>
-    <label><input type="radio" name="battery_os" value="Android">Android</label>
-    <label>機種詳細</label><input type="text" id="battery_model">
-    <label>品質</label>
-    <label><input type="radio" name="battery_quality" value="standard">標準</label>
-    <label><input type="radio" name="battery_quality" value="large">大容量</label>
-    <button onclick="saveBattery()">次へ進む</button>
-<button onclick="showStep('step1')">最初に戻る</button>
 
+    <label>機種</label>
+    <label><input type="radio" name="battery_os" value="iPhone"> iPhone</label>
+    <label><input type="radio" name="battery_os" value="Android"> Android</label>
+
+    <label>機種詳細</label>
+    <input type="text" id="battery_model">
+
+    <label>品質</label>
+    <label><input type="radio" name="battery_quality" value="standard"> 標準</label>
+    <label><input type="radio" name="battery_quality" value="large"> 大容量</label>
+
+    <button onclick="saveBattery()">次へ進む</button>
+    <button onclick="backTo('step2')">前の画面に戻る</button>
   </section>
 
-  <!-- STEP 3-C -->
+  <!-- STEP 3-C：ガラスコーティング -->
   <section class="step" id="step_coating">
     <h2>STEP 3 / 6<br>ガラスコーティング</h2>
-    <label><input type="radio" name="coat_type" value="screen">画面のみ</label>
-    <label><input type="radio" name="coat_type" value="body">本体のみ</label>
-    <label><input type="radio" name="coat_type" value="both">表と裏の2面</label>
-    <label><input type="radio" name="coat_type" value="other">その他</label>
-    <button onclick="saveCoating()">次へ進む</button>
-<button onclick="showStep('step1')">最初に戻る</button>
 
+    <label><input type="radio" name="coat_type" value="screen"> 画面のみ</label>
+    <label><input type="radio" name="coat_type" value="body"> 本体のみ</label>
+    <label><input type="radio" name="coat_type" value="both"> 表と裏の2面</label>
+    <label><input type="radio" name="coat_type" value="other"> その他</label>
+
+    <button onclick="saveCoating()">次へ進む</button>
+    <button onclick="backTo('step2')">前の画面に戻る</button>
   </section>
 
-  <!-- STEP 3-D -->
+  <!-- STEP 3-D：複数 -->
   <section class="step" id="step_multi">
     <h2>STEP 3 / 6<br>複数メニュー</h2>
-    <label><input type="checkbox" name="multi_menu" value="screen">画面修理</label>
-    <label><input type="checkbox" name="multi_menu" value="battery">バッテリー交換</label>
-    <label><input type="checkbox" name="multi_menu" value="coat_screen">ガラス（画面）</label>
-    <label><input type="checkbox" name="multi_menu" value="coat_both">ガラス（画面＋裏面）</label>
-    <button onclick="saveMultiMenu()">次へ進む</button>
-<button onclick="showStep('step1')">最初に戻る</button>
 
+    <label><input type="checkbox" name="multi_menu" value="screen"> 画面修理</label>
+    <label><input type="checkbox" name="multi_menu" value="battery"> バッテリー交換</label>
+    <label><input type="checkbox" name="multi_menu" value="coat_screen"> ガラス（画面）</label>
+    <label><input type="checkbox" name="multi_menu" value="coat_both"> ガラス（画面＋裏面）</label>
+
+    <button onclick="saveMultiMenu()">次へ進む</button>
+    <button onclick="backTo('step2')">前の画面に戻る</button>
   </section>
 
-  <!-- STEP 4 -->
+  <!-- STEP 4：複数用の機種入力 -->
   <section class="step" id="step_multi_detail">
     <h2>STEP 4 / 6<br>機種等の入力</h2>
-    <label>機種</label>
-    <label><input type="radio" name="multi_os" value="iPhone">iPhone</label>
-    <label><input type="radio" name="multi_os" value="Android">Android</label>
-    <label><input type="radio" name="multi_os" value="other">その他</label>
-    <label>機種詳細</label><input type="text" id="multi_model">
-    <label>バッテリー交換</label>
-    <label><input type="radio" name="multi_battery" value="none">交換しない</label>
-    <label><input type="radio" name="multi_battery" value="standard">標準</label>
-    <label><input type="radio" name="multi_battery" value="large">大容量</label>
-    <label>画面修理</label>
-    <label><input type="radio" name="multi_screen" value="none">修理しない</label>
-    <label><input type="radio" name="multi_screen" value="LCD">LCD</label>
-    <label><input type="radio" name="multi_screen" value="OLED">OLED</label>
-    <label><input type="radio" name="multi_screen" value="refurb">再生品</label>
-    <button onclick="saveMultiDetail()">次へ進む</button>
-<button onclick="showStep('step1')">最初に戻る</button>
 
+    <label>機種</label>
+    <label><input type="radio" name="multi_os" value="iPhone"> iPhone</label>
+    <label><input type="radio" name="multi_os" value="Android"> Android</label>
+    <label><input type="radio" name="multi_os" value="other"> その他</label>
+
+    <label>機種詳細</label>
+    <input type="text" id="multi_model">
+
+    <label>バッテリー交換（任意）</label>
+    <label><input type="radio" name="multi_battery" value="none"> 交換しない</label>
+    <label><input type="radio" name="multi_battery" value="standard"> 標準</label>
+    <label><input type="radio" name="multi_battery" value="large"> 大容量</label>
+
+    <label>画面修理（任意）</label>
+    <label><input type="radio" name="multi_screen" value="none"> 修理しない</label>
+    <label><input type="radio" name="multi_screen" value="LCD"> LCD</label>
+    <label><input type="radio" name="multi_screen" value="OLED"> OLED</label>
+    <label><input type="radio" name="multi_screen" value="refurb"> 再生品</label>
+
+    <button onclick="saveMultiDetail()">次へ進む</button>
+    <button onclick="backTo('step_multi')">前の画面に戻る</button>
   </section>
 
-  <!-- STEP 5 -->
+  <!-- STEP 5：希望日 -->
   <section class="step" id="step5">
     <h2>STEP 5 / 6<br>希望日</h2>
-    <label>第1希望</label><input type="date" id="date1"><input type="time" id="time1">
-    <label>第2希望</label><input type="date" id="date2"><input type="time" id="time2">
-    <label>第3希望</label><input type="date" id="date3"><input type="time" id="time3">
-    <button onclick="saveDates()">確認画面へ</button>
-<button onclick="showStep('step1')">最初に戻る</button>
 
+    <label>第1希望</label>
+    <input type="date" id="date1">
+    <input type="time" id="time1">
+
+    <label>第2希望</label>
+    <input type="date" id="date2">
+    <input type="time" id="time2">
+
+    <label>第3希望</label>
+    <input type="date" id="date3">
+    <input type="time" id="time3">
+
+    <button onclick="saveDates()">確認画面へ</button>
+    <button onclick="backTo('step2')">前の画面に戻る</button>
   </section>
 
-  <!-- STEP 6 -->
+  <!-- STEP 6：確認画面 -->
   <section class="step" id="step6">
     <h2>STEP 6 / 6<br>確認画面</h2>
-    <div id="confirm-area"></div>
-    <button onclick="submitForm()">送信する</button>
-<button onclick="showStep('step1')">最初に戻る</button>
 
+    <div id="confirm-area"></div>
+
+    <button onclick="submitForm()">送信する</button>
+    <button onclick="backTo('step5')">前の画面に戻る</button>
   </section>
 
 </div>
