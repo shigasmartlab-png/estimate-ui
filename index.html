@@ -27,6 +27,8 @@
     <label><input type="radio" name="menu" value="coating">ガラスコーティング</label>
     <label><input type="radio" name="menu" value="multi">複数組み合わせ</label>
     <button onclick="selectMenu()">次へ進む</button>
+<button onclick="showStep('step1')">最初に戻る</button>
+
   </section>
 
   <!-- STEP 3-A -->
@@ -41,6 +43,8 @@
     <label><input type="radio" name="screen_quality" value="OLED">OLED</label>
     <label><input type="radio" name="screen_quality" value="refurb">再生品</label>
     <button onclick="saveScreen()">次へ進む</button>
+<button onclick="showStep('step1')">最初に戻る</button>
+
   </section>
 
   <!-- STEP 3-B -->
@@ -54,6 +58,8 @@
     <label><input type="radio" name="battery_quality" value="standard">標準</label>
     <label><input type="radio" name="battery_quality" value="large">大容量</label>
     <button onclick="saveBattery()">次へ進む</button>
+<button onclick="showStep('step1')">最初に戻る</button>
+
   </section>
 
   <!-- STEP 3-C -->
@@ -64,6 +70,8 @@
     <label><input type="radio" name="coat_type" value="both">表と裏の2面</label>
     <label><input type="radio" name="coat_type" value="other">その他</label>
     <button onclick="saveCoating()">次へ進む</button>
+<button onclick="showStep('step1')">最初に戻る</button>
+
   </section>
 
   <!-- STEP 3-D -->
@@ -74,6 +82,8 @@
     <label><input type="checkbox" name="multi_menu" value="coat_screen">ガラス（画面）</label>
     <label><input type="checkbox" name="multi_menu" value="coat_both">ガラス（画面＋裏面）</label>
     <button onclick="saveMultiMenu()">次へ進む</button>
+<button onclick="showStep('step1')">最初に戻る</button>
+
   </section>
 
   <!-- STEP 4 -->
@@ -94,6 +104,8 @@
     <label><input type="radio" name="multi_screen" value="OLED">OLED</label>
     <label><input type="radio" name="multi_screen" value="refurb">再生品</label>
     <button onclick="saveMultiDetail()">次へ進む</button>
+<button onclick="showStep('step1')">最初に戻る</button>
+
   </section>
 
   <!-- STEP 5 -->
@@ -103,6 +115,8 @@
     <label>第2希望</label><input type="date" id="date2"><input type="time" id="time2">
     <label>第3希望</label><input type="date" id="date3"><input type="time" id="time3">
     <button onclick="saveDates()">確認画面へ</button>
+<button onclick="showStep('step1')">最初に戻る</button>
+
   </section>
 
   <!-- STEP 6 -->
@@ -110,6 +124,8 @@
     <h2>STEP 6 / 6<br>確認画面</h2>
     <div id="confirm-area"></div>
     <button onclick="submitForm()">送信する</button>
+<button onclick="showStep('step1')">最初に戻る</button>
+
   </section>
 
 </div>
