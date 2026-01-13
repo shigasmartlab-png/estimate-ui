@@ -43,7 +43,7 @@ input[type="time"] {
   color: #000;
 }
 
-.next-btn {
+button {
   width: 100%;
   padding: 12px;
   background: #fff;
@@ -55,8 +55,15 @@ input[type="time"] {
   cursor: pointer;
 }
 
-.next-btn:hover {
+button:hover {
   background: #000;
   color: #fff;
   border: 1px solid #fff;
+}
+
+pre {
+  background: #222;
+  padding: 10px;
+  border-radius: 6px;
+  white-space: pre-wrap;
 }

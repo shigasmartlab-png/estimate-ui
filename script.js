@@ -3,7 +3,6 @@
 // ===============================
 const API_BASE = "https://android-estimate-api.onrender.com";
 
-
 let formData = {};
 
 
@@ -103,7 +102,7 @@ function saveCoating() {
 
 
 // ===============================
-// STEP3-D：複数組み合わせ
+// STEP3-D：複数メニュー
 // ===============================
 function saveMultiMenu() {
   const selected = [...document.querySelectorAll("input[name='multi_menu']:checked")]
