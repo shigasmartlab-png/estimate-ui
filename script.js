@@ -292,15 +292,19 @@ async function selectDate(dateStr) {
 
   const duration = getTotalDuration();
 
-  const res = await fetch(
-    `${API_BASE}/availability?date=${dateStr}&duration=${duration}`
-  );
+  const res = await fetch(`${API_BASE}/availability?date=${dateStr}&duration=${duration}`);
   const data = await res.json();
 
   const timeArea = document.getElementById("time-slots");
   timeArea.innerHTML = "";
 
-  if (!data || data.length === 0) {
+  if (!Array.isArray(data)) {
+    timeArea.innerHTML = `<p>空き時間の取得に失敗しました：${data.detail || "不明なエラー"}</p>`;
+    console.error("availability API error:", data);
+    return;
+  }
+
+  if (data.length === 0) {
     timeArea.innerHTML = "<p>空き時間がありません</p>";
     return;
   }
@@ -312,6 +316,7 @@ async function selectDate(dateStr) {
     timeArea.appendChild(btn);
   });
 }
+
 
 
 // ===============================
