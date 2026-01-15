@@ -21,6 +21,7 @@ function showStep(id) {
 }
 showStep("step1");
 
+
 // ===============================
 // STEP1 → STEP2
 // ===============================
@@ -37,6 +38,7 @@ function goStep2() {
   showStep("step2");
 }
 
+
 // ===============================
 // メニュー選択
 // ===============================
@@ -52,6 +54,7 @@ function selectMenu() {
   if (menu.value === "coating") showStep("step_coating");
   if (menu.value === "multi") showStep("step_multi");
 }
+
 
 // ===============================
 // 所要時間計算
@@ -77,6 +80,79 @@ function getTotalDuration() {
   return base;
 }
 
+
+// ===============================
+// 各メニュー保存
+// ===============================
+function saveScreen() {
+  const os = document.querySelector("input[name='screen_os']:checked");
+  const quality = document.querySelector("input[name='screen_quality']:checked");
+
+  if (!os || !quality) return alert("すべて選択してください");
+
+  formData.screen_os = os.value;
+  formData.screen_model = document.getElementById("screen_model").value;
+  formData.screen_quality = quality.value;
+
+  if (!formData.screen_model) return alert("機種詳細を入力してください");
+
+  showStep("step5");
+}
+
+function saveBattery() {
+  const os = document.querySelector("input[name='battery_os']:checked");
+  const quality = document.querySelector("input[name='battery_quality']:checked");
+
+  if (!os || !quality) return alert("すべて選択してください");
+
+  formData.battery_os = os.value;
+  formData.battery_model = document.getElementById("battery_model").value;
+  formData.battery_quality = quality.value;
+
+  if (!formData.battery_model) return alert("機種詳細を入力してください");
+
+  showStep("step5");
+}
+
+function saveCoating() {
+  const type = document.querySelector("input[name='coat_type']:checked");
+  if (!type) return alert("選択してください");
+
+  formData.coat_type = type.value;
+
+  showStep("step5");
+}
+
+function saveMultiMenu() {
+  const selected = [...document.querySelectorAll("input[name='multi_menu']:checked")]
+    .map(cb => cb.value);
+
+  if (selected.length === 0) return alert("1つ以上選択してください");
+
+  formData.multi_menu = selected;
+
+  showStep("step_multi_detail");
+}
+
+function saveMultiDetail() {
+  const os = document.querySelector("input[name='multi_os']:checked");
+  if (!os) return alert("機種を選択してください");
+
+  formData.multi_os = os.value;
+  formData.multi_model = document.getElementById("multi_model").value;
+
+  if (!formData.multi_model) return alert("機種詳細を入力してください");
+
+  const battery = document.querySelector("input[name='multi_battery']:checked");
+  const screen = document.querySelector("input[name='multi_screen']:checked");
+
+  formData.multi_battery = battery ? battery.value : "none";
+  formData.multi_screen = screen ? screen.value : "none";
+
+  showStep("step5");
+}
+
+
 // ===============================
 // FullCalendar 初期化
 // ===============================
@@ -95,6 +171,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   calendar.render();
 });
+
 
 // ===============================
 // 空き時間取得（GAS）
@@ -127,6 +204,7 @@ async function selectDate(dateStr) {
   });
 }
 
+
 // ===============================
 // 時間選択
 // ===============================
@@ -148,6 +226,7 @@ function selectTime(time) {
     alert("すでに3つ選択済みです");
   }
 }
+
 
 // ===============================
 // 確認画面へ
@@ -173,6 +252,7 @@ function goToConfirm() {
 
   showStep("step6");
 }
+
 
 // ===============================
 // 予約送信（GAS）
