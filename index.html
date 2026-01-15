@@ -4,11 +4,31 @@
   <meta charset="UTF-8">
   <title>予約フォーム</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- ダークモードCSS -->
   <link rel="stylesheet" href="style.css">
+
+  <!-- FullCalendar CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 </head>
 <body>
 
 <div id="form-container">
+
+  <!-- キャンセルUI -->
+  <section class="step" id="cancel_box" style="display:block;">
+    <h2>予約の確認・キャンセル</h2>
+
+    <label>予約IDを入力</label>
+    <input type="text" id="cancel_id">
+
+    <button onclick="cancelReservation()">キャンセルする</button>
+
+    <hr style="margin:30px 0; border-color:#444;">
+
+    <button onclick="showStep('step1')">新規予約を開始する</button>
+  </section>
 
   <!-- STEP 1 -->
   <section class="step" id="step1">
@@ -131,23 +151,16 @@
     <button onclick="backTo('step_multi')">前の画面に戻る</button>
   </section>
 
-  <!-- STEP 5：希望日 -->
+  <!-- STEP 5：FullCalendar（空き状況チェック） -->
   <section class="step" id="step5">
-    <h2>STEP 5 / 6<br>希望日</h2>
+    <h2>STEP 5 / 6<br>作業希望日</h2>
 
-    <label>第1希望</label>
-    <input type="date" id="date1">
-    <input type="time" id="time1">
+    <div id="calendar"></div>
 
-    <label>第2希望</label>
-    <input type="date" id="date2">
-    <input type="time" id="time2">
+    <h3 style="margin-top:20px;">空き時間</h3>
+    <div id="time-slots"></div>
 
-    <label>第3希望</label>
-    <input type="date" id="date3">
-    <input type="time" id="time3">
-
-    <button onclick="saveDates()">確認画面へ</button>
+    <button id="next-to-confirm" style="display:none;" onclick="goToConfirm()">確認画面へ</button>
     <button onclick="backTo('step2')">前の画面に戻る</button>
   </section>
 

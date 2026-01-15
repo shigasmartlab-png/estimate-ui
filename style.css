@@ -1,3 +1,6 @@
+/* ===============================
+   全体レイアウト（ダークモード）
+=============================== */
 body {
   background: #000;
   color: #fff;
@@ -11,6 +14,9 @@ body {
   margin: auto;
 }
 
+/* ===============================
+   ステップ共通
+=============================== */
 .step {
   display: none;
   background: #111;
@@ -31,6 +37,9 @@ label {
   margin: 12px 0 4px;
 }
 
+/* ===============================
+   入力欄
+=============================== */
 input[type="text"],
 input[type="date"],
 input[type="time"] {
@@ -43,6 +52,9 @@ input[type="time"] {
   color: #000;
 }
 
+/* ===============================
+   ボタン
+=============================== */
 button {
   width: 100%;
   padding: 12px;
@@ -61,9 +73,73 @@ button:hover {
   border: 1px solid #fff;
 }
 
+/* ===============================
+   確認画面のメモ
+=============================== */
 pre {
   background: #222;
   padding: 10px;
   border-radius: 6px;
   white-space: pre-wrap;
+}
+
+/* ===============================
+   FullCalendar（ダークモード調整）
+=============================== */
+.fc {
+  background: #111;
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.fc .fc-toolbar-title {
+  color: #fff;
+}
+
+.fc .fc-button {
+  background: #333;
+  border: none;
+  color: #fff;
+}
+
+.fc .fc-button:hover {
+  background: #555;
+}
+
+.fc .fc-daygrid-day {
+  background: #111;
+  border: 1px solid #333;
+}
+
+.fc .fc-daygrid-day-number {
+  color: #fff;
+}
+
+.fc .fc-day-today {
+  background: #222 !important;
+}
+
+.fc .fc-day-disabled {
+  background: #333 !important;
+  color: #777 !important;
+}
+
+/* ===============================
+   空き時間ボタン
+=============================== */
+#time-slots button {
+  width: auto;
+  padding: 10px 14px;
+  margin: 6px;
+  background: #fff;
+  color: #000;
+  border-radius: 6px;
+  border: none;
+}
+
+#time-slots button:hover {
+  background: #000;
+  color: #fff;
+  border: 1px solid #fff;
 }

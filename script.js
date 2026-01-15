@@ -5,6 +5,7 @@ const API_BASE = "https://android-estimate-api.onrender.com";
 
 let formData = {};
 
+
 // ===============================
 // ステップ切り替え
 // ===============================
@@ -12,7 +13,7 @@ function showStep(id) {
   document.querySelectorAll(".step").forEach(s => s.style.display = "none");
   document.getElementById(id).style.display = "block";
 }
-showStep("step1");
+showStep("cancel_box");
 
 
 // ===============================
@@ -29,21 +30,18 @@ function backTo(stepId) {
 // ===============================
 function restoreInputs(stepId) {
 
-  // STEP1
   if (stepId === "step1") {
     document.getElementById("name").value = formData.name || "";
     document.getElementById("line_name").value = formData.line_name || "";
     document.getElementById("address").value = formData.address || "";
   }
 
-  // STEP2
   if (stepId === "step2") {
     if (formData.menu) {
       document.querySelector(`input[name="menu"][value="${formData.menu}"]`).checked = true;
     }
   }
 
-  // STEP3-A：画面修理
   if (stepId === "step_screen") {
     if (formData.screen_os) {
       document.querySelector(`input[name="screen_os"][value="${formData.screen_os}"]`).checked = true;
@@ -54,7 +52,6 @@ function restoreInputs(stepId) {
     }
   }
 
-  // STEP3-B：バッテリー交換
   if (stepId === "step_battery") {
     if (formData.battery_os) {
       document.querySelector(`input[name="battery_os"][value="${formData.battery_os}"]`).checked = true;
@@ -65,14 +62,12 @@ function restoreInputs(stepId) {
     }
   }
 
-  // STEP3-C：ガラスコーティング
   if (stepId === "step_coating") {
     if (formData.coat_type) {
       document.querySelector(`input[name="coat_type"][value="${formData.coat_type}"]`).checked = true;
     }
   }
 
-  // STEP3-D：複数メニュー
   if (stepId === "step_multi") {
     if (formData.multi_menu) {
       formData.multi_menu.forEach(v => {
@@ -82,7 +77,6 @@ function restoreInputs(stepId) {
     }
   }
 
-  // STEP4：複数用の機種入力
   if (stepId === "step_multi_detail") {
     if (formData.multi_os) {
       document.querySelector(`input[name="multi_os"][value="${formData.multi_os}"]`).checked = true;
@@ -95,16 +89,6 @@ function restoreInputs(stepId) {
     if (formData.multi_screen) {
       document.querySelector(`input[name="multi_screen"][value="${formData.multi_screen}"]`).checked = true;
     }
-  }
-
-  // STEP5：希望日
-  if (stepId === "step5") {
-    document.getElementById("date1").value = formData.date1 || "";
-    document.getElementById("time1").value = formData.time1 || "";
-    document.getElementById("date2").value = formData.date2 || "";
-    document.getElementById("time2").value = formData.time2 || "";
-    document.getElementById("date3").value = formData.date3 || "";
-    document.getElementById("time3").value = formData.time3 || "";
   }
 }
 
@@ -231,23 +215,80 @@ function saveMultiDetail() {
 
 
 // ===============================
-// STEP5：希望日入力
+// STEP5：FullCalendar 初期化
 // ===============================
-function saveDates() {
-  formData.date1 = document.getElementById("date1").value;
-  formData.time1 = document.getElementById("time1").value;
-  formData.date2 = document.getElementById("date2").value;
-  formData.time2 = document.getElementById("time2").value;
-  formData.date3 = document.getElementById("date3").value;
-  formData.time3 = document.getElementById("time3").value;
+document.addEventListener("DOMContentLoaded", function () {
+  const calendarEl = document.getElementById("calendar");
 
-  if (!formData.date1 || !formData.time1 ||
-      !formData.date2 || !formData.time2 ||
-      !formData.date3 || !formData.time3) {
-    alert("希望日をすべて入力してください");
+  if (!calendarEl) return;
+
+  const calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: "dayGridMonth",
+    locale: "ja",
+    height: "auto",
+    selectable: true,
+    dateClick: function (info) {
+      selectDate(info.dateStr);
+    }
+  });
+
+  calendar.render();
+});
+
+
+// ===============================
+// 日付を選択 → 空き時間取得
+// ===============================
+async function selectDate(dateStr) {
+  formData.selectedDate = dateStr;
+
+  const res = await fetch(`${API_BASE}/availability?date=${dateStr}`);
+  const data = await res.json();
+
+  const timeArea = document.getElementById("time-slots");
+  timeArea.innerHTML = "";
+
+  if (!data || data.length === 0) {
+    timeArea.innerHTML = "<p>空き時間がありません</p>";
     return;
   }
 
+  data.forEach(time => {
+    const btn = document.createElement("button");
+    btn.textContent = time;
+    btn.onclick = () => selectTime(time);
+    timeArea.appendChild(btn);
+  });
+}
+
+
+// ===============================
+// 時間を選択 → 第1〜第3希望に自動登録
+// ===============================
+function selectTime(time) {
+  if (!formData.date1) {
+    formData.date1 = formData.selectedDate;
+    formData.time1 = time;
+    alert("第1希望を登録しました");
+  } else if (!formData.date2) {
+    formData.date2 = formData.selectedDate;
+    formData.time2 = time;
+    alert("第2希望を登録しました");
+  } else if (!formData.date3) {
+    formData.date3 = formData.selectedDate;
+    formData.time3 = time;
+    alert("第3希望を登録しました");
+    document.getElementById("next-to-confirm").style.display = "block";
+  } else {
+    alert("すでに3つ選択済みです");
+  }
+}
+
+
+// ===============================
+// 確認画面へ
+// ===============================
+function goToConfirm() {
   buildConfirm();
   showStep("step6");
 }
@@ -273,6 +314,9 @@ function buildConfirm() {
     <p>第2希望：${formData.date2} ${formData.time2}</p>
     <p>第3希望：${formData.date3} ${formData.time3}</p>
 
+    <h3>予約ID</h3>
+    <p>${formData.reservation_id}</p>
+
     <h3>詳細情報（メモ）</h3>
     <pre>${JSON.stringify(formData, null, 2)}</pre>
   `;
@@ -280,10 +324,29 @@ function buildConfirm() {
 
 
 // ===============================
+// 予約ID生成（B方式：YYYYMMDD-1234）
+// ===============================
+function generateReservationId() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+
+  const rand = Math.floor(1000 + Math.random() * 9000);
+
+  return `${y}${m}${day}-${rand}`;
+}
+
+
+// ===============================
 // API送信
 // ===============================
 async function submitForm() {
+
+  formData.reservation_id = generateReservationId();
+
   const payload = {
+    reservation_id: formData.reservation_id,
     date: formData.date1,
     time: formData.time1,
     name: formData.name,
@@ -307,7 +370,40 @@ async function submitForm() {
     }
 
     alert("予約が完了しました！");
-    window.location.href = "thanks.html";
+    window.location.href = `thanks.html?rid=${formData.reservation_id}`;
+
+  } catch (e) {
+    alert("通信エラーが発生しました");
+    console.error(e);
+  }
+}
+
+
+// ===============================
+// 予約キャンセル
+// ===============================
+async function cancelReservation() {
+  const rid = document.getElementById("cancel_id").value;
+
+  if (!rid) {
+    alert("予約IDを入力してください");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/cancel?reservation_id=${rid}`, {
+      method: "DELETE"
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert("キャンセルエラー：" + data.detail);
+      return;
+    }
+
+    alert("予約をキャンセルしました");
+    location.reload();
 
   } catch (e) {
     alert("通信エラーが発生しました");

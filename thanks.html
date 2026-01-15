@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>予約完了</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="form-container">
+
+  <section class="step" style="display:block; text-align:center;">
+    <h2>予約が完了しました</h2>
+
+    <p style="margin-top:20px; line-height:1.8;">
+      ご予約ありがとうございます。<br>
+      内容を確認後、担当者よりご連絡いたします。
+    </p>
+
+    <p style="margin-top:20px; font-size:16px;">
+      あなたの予約ID：<strong id="rid"></strong>
+    </p>
+
+    <p style="margin-top:20px; font-size:14px; color:#ccc;">
+      ※予約IDはキャンセル時に必要です。<br>
+      必ず控えておいてください。
+    </p>
+
+    <button onclick="location.href='index.html'">トップに戻る</button>
+  </section>
+
+</div>
+
+<script>
+  // URLパラメータから予約IDを取得して表示
+  const rid = new URLSearchParams(location.search).get("rid");
+  document.getElementById("rid").textContent = rid || "取得できませんでした";
+</script>
+
+</body>
+</html>
