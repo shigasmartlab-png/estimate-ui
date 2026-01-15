@@ -400,8 +400,6 @@ function buildConfirm() {
     <h3>予約ID</h3>
     <p>${formData.reservation_id || "送信時に発行されます"}</p>
 
-    <h3>詳細情報（メモ）</h3>
-    <pre>${JSON.stringify(formData, null, 2)}</pre>
   `;
 }
 
