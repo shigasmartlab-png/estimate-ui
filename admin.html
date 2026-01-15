@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <title>管理画面（予約システム）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FullCalendar -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
   <style>
     body { font-family: sans-serif; padding: 20px; background: #f5f5f5; }
     h1 { text-align: center; }
@@ -26,12 +31,17 @@
       padding: 4px 8px; margin: 4px; display: inline-block;
       background: #ffe0e0; border-radius: 4px;
     }
+    #holiday-edit-list div {
+      background: #eee; padding: 8px; border-radius: 6px;
+      margin-bottom: 8px; cursor: pointer;
+    }
   </style>
 </head>
 <body>
 
 <h1>管理画面（予約システム）</h1>
 
+<!-- ① 休み時間帯の一括登録 -->
 <section class="section">
   <h2>休み時間帯の一括登録</h2>
 
@@ -62,22 +72,40 @@
   <button id="add-multiple-btn">選択した時間帯を一括登録</button>
 </section>
 
+<!-- ② 休みカレンダー -->
 <section class="section">
   <h2>休み時間帯カレンダー</h2>
   <div id="holiday-calendar"></div>
 </section>
 
+<!-- ③ 休み編集 UI -->
 <section class="section">
-  <h2>予約一覧</h2>
+  <h2>休みの編集</h2>
 
-  <div class="form-row">
-    <label for="list-date">日付で絞り込み</label>
-    <input type="date" id="list-date">
+  <div id="holiday-edit-list"></div>
+
+  <div id="holiday-edit-box" style="display:none; margin-top:20px;">
+    <h3>休みを編集</h3>
+    <p id="edit-date"></p>
+
+    <div id="edit-time-checkboxes"></div>
+
+    <button onclick="saveHolidayEdit()">保存する</button>
+    <button onclick="deleteHoliday()">削除する</button>
+    <button onclick="cancelHolidayEdit()">キャンセル</button>
   </div>
+</section>
 
-  <button id="load-list-btn">予約一覧を読み込む</button>
+<!-- ④ 予約カレンダー -->
+<section class="section">
+  <h2>予約カレンダー</h2>
+  <div id="reservation-calendar"></div>
 
-  <ul id="reservation-list"></ul>
+  <div id="reservation-detail" style="display:none; margin-top:20px; background:#fff; padding:16px; border-radius:8px;">
+    <h3>予約詳細</h3>
+    <p id="detail-content"></p>
+    <button onclick="closeDetail()">閉じる</button>
+  </div>
 </section>
 
 <script src="admin.js"></script>
