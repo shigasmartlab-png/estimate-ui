@@ -1,7 +1,7 @@
 // ===============================
 // 設定
 // ===============================
-const API_BASE = "https://script.google.com/macros/s/AKfycbyv3hzO3tvX_Glf3U6Vv5tBS6yUKweRZXOeMzyo-ecedp6RWJAwdJIQNEMpmUMASmXU/exec";
+const API_BASE = "https://script.google.com/macros/s/AKfycbw8g4hkq1L0H4xRxM-apkkJD-iH3-bgMOtl968iREhrg1KDXQZ7otbuUQ1WiJNh_nsq/exec";
 
 document.addEventListener("DOMContentLoaded", async function () {
   const calendarEl = document.getElementById("admin-calendar");

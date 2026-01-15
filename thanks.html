@@ -2,41 +2,94 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>予約完了</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="style.css">
+
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: "Helvetica", "Arial", sans-serif;
+      text-align: center;
+      padding: 40px 20px;
+      line-height: 1.7;
+    }
+
+    h1 {
+      font-size: 26px;
+      margin-bottom: 20px;
+    }
+
+    .box {
+      background: #111;
+      padding: 25px;
+      border-radius: 10px;
+      margin: 20px auto;
+      max-width: 500px;
+      border: 1px solid #333;
+    }
+
+    .id-box {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 10px;
+      padding: 10px;
+      background: #222;
+      border-radius: 6px;
+      border: 1px solid #444;
+    }
+
+    .note {
+      font-size: 13px;
+      color: #ccc;
+      margin-top: 10px;
+    }
+
+    button {
+      margin-top: 30px;
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background: #fff;
+      color: #000;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      opacity: 0.8;
+    }
+  </style>
 </head>
+
 <body>
 
-<div id="form-container">
+  <h1>予約が完了しました</h1>
 
-  <section class="step" style="display:block; text-align:center;">
-    <h2>予約が完了しました</h2>
+  <div class="box">
+    <p>ご予約ありがとうございます。<br>
+    内容を確認後、担当者よりご連絡いたします。</p>
 
-    <p style="margin-top:20px; line-height:1.8;">
-      ご予約ありがとうございます。<br>
-      内容を確認後、担当者よりご連絡いたします。
-    </p>
+    <p>あなたの予約ID：</p>
+    <div id="reservation-id" class="id-box">取得できませんでした</div>
 
-    <p style="margin-top:20px; font-size:16px;">
-      あなたの予約ID：<strong id="rid"></strong>
-    </p>
+    <p class="note">※予約IDはキャンセル時に必要です。必ず控えておいてください。</p>
+  </div>
 
-    <p style="margin-top:20px; font-size:14px; color:#ccc;">
-      ※予約IDはキャンセル時に必要です。<br>
-      必ず控えておいてください。
-    </p>
+  <button onclick="location.href='index.html'">トップに戻る</button>
 
-    <button onclick="location.href='index.html'">トップに戻る</button>
-  </section>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const id = localStorage.getItem("reservation_id");
 
-</div>
-
-<script>
-  // URLパラメータから予約IDを取得して表示
-  const rid = new URLSearchParams(location.search).get("rid");
-  document.getElementById("rid").textContent = rid || "取得できませんでした";
-</script>
+      if (id && id !== "undefined" && id !== "null") {
+        document.getElementById("reservation-id").textContent = id;
+      } else {
+        document.getElementById("reservation-id").textContent = "取得できませんでした";
+      }
+    });
+  </script>
 
 </body>
 </html>

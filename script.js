@@ -1,7 +1,7 @@
 // ===============================
 // 設定（GAS Web API URL）
 // ===============================
-const API_BASE = "https://script.google.com/macros/s/AKfycbyv3hzO3tvX_Glf3U6Vv5tBS6yUKweRZXOeMzyo-ecedp6RWJAwdJIQNEMpmUMASmXU/exec";
+const API_BASE = "https://script.google.com/macros/s/AKfycbw8g4hkq1L0H4xRxM-apkkJD-iH3-bgMOtl968iREhrg1KDXQZ7otbuUQ1WiJNh_nsq/exec";
 
 let formData = {};
 
@@ -277,6 +277,13 @@ async function submitForm() {
 
   const data = await res.json();
 
-  alert("予約が完了しました！");
+  if (!data.reservation_id) {
+    alert("予約IDの取得に失敗しました");
+    return;
+  }
+
+  // thanks.html で使う
+  localStorage.setItem("reservation_id", data.reservation_id);
+
   window.location.href = `thanks.html`;
 }
