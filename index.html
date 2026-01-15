@@ -16,22 +16,8 @@
 
 <div id="form-container">
 
-  <!-- キャンセルUI -->
-  <section class="step" id="cancel_box" style="display:block;">
-    <h2>予約の確認・キャンセル</h2>
-
-    <label>予約IDを入力</label>
-    <input type="text" id="cancel_id">
-
-    <button onclick="cancelReservation()">キャンセルする</button>
-
-    <hr style="margin:30px 0; border-color:#444;">
-
-    <button onclick="showStep('step1')">新規予約を開始する</button>
-  </section>
-
   <!-- STEP 1 -->
-  <section class="step" id="step1">
+  <section class="step" id="step1" style="display:block;">
     <h2>STEP 1 / 6<br>基本情報</h2>
 
     <label>名前</label>
@@ -44,6 +30,26 @@
     <input type="text" id="address">
 
     <button onclick="goStep2()">次へ進む</button>
+
+    <!-- ▼ 追加：キャンセルページへの導線 ▼ -->
+    <div style="text-align:center; margin-top:20px;">
+      <button 
+        onclick="location.href='cancel.html'" 
+        style="
+          background:#444;
+          color:#fff;
+          padding:10px 20px;
+          border:none;
+          border-radius:6px;
+          font-size:16px;
+          cursor:pointer;
+          margin-top:10px;
+        ">
+        予約キャンセルはこちら
+      </button>
+    </div>
+    <!-- ▲ 追加ここまで ▲ -->
+
   </section>
 
   <!-- STEP 2 -->

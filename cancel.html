@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>予約キャンセル</title>
+
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: "Helvetica", "Arial", sans-serif;
+      text-align: center;
+      padding: 40px 20px;
+      line-height: 1.7;
+    }
+
+    h1 {
+      font-size: 26px;
+      margin-bottom: 20px;
+    }
+
+    .box {
+      background: #111;
+      padding: 25px;
+      border-radius: 10px;
+      margin: 20px auto;
+      max-width: 500px;
+      border: 1px solid #333;
+    }
+
+    input {
+      width: 90%;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #444;
+      margin-top: 10px;
+      background: #222;
+      color: #fff;
+    }
+
+    button {
+      margin-top: 25px;
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background: #fff;
+      color: #000;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      opacity: 0.8;
+    }
+
+    .msg {
+      margin-top: 20px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .success {
+      color: #4cd964;
+    }
+
+    .error {
+      color: #ff3b30;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>予約キャンセル</h1>
+
+  <div class="box">
+    <p>予約時に発行された予約IDを入力してください。</p>
+
+    <input type="text" id="reservation-id" placeholder="例：20260115-493028">
+
+    <button onclick="cancelReservation()">キャンセルする</button>
+
+    <div id="message" class="msg"></div>
+  </div>
+
+  <button onclick="location.href='index.html'">トップに戻る</button>
+
+  <script>
+    const API_BASE = "https://script.google.com/macros/s/AKfycbw8g4hkq1L0H4xRxM-apkkJD-iH3-bgMOtl968iREhrg1KDXQZ7otbuUQ1WiJNh_nsq/exec";
+
+    async function cancelReservation() {
+      const id = document.getElementById("reservation-id").value.trim();
+      const msg = document.getElementById("message");
+
+      msg.textContent = "";
+      msg.className = "msg";
+
+      if (!id) {
+        msg.textContent = "予約IDを入力してください。";
+        msg.classList.add("error");
+        return;
+      }
+
+      const payload = { reservation_id: id };
+
+      try {
+        const res = await fetch(`${API_BASE}?action=cancel`, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (data.message) {
+          msg.textContent = data.message;
+          msg.classList.add("success");
+        } else {
+          msg.textContent = data.error || "キャンセルに失敗しました。";
+          msg.classList.add("error");
+        }
+
+      } catch (e) {
+        msg.textContent = "通信エラーが発生しました。";
+        msg.classList.add("error");
+      }
+    }
+  </script>
+
+</body>
+</html>
