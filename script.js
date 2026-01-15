@@ -1,7 +1,7 @@
 // ===============================
 // 設定（GAS Web API URL）
 // ===============================
-const API_BASE = "https://script.google.com/macros/s/AKfycbxciqi3LNoy6ucjd8xfOKTDVQao5LldGNotbRucemKqG65BWMrJg0cCqt4WFePrb9gt/exec";
+const API_BASE = "https://script.google.com/macros/s/AKfycbyv3hzO3tvX_Glf3U6Vv5tBS6yUKweRZXOeMzyo-ecedp6RWJAwdJIQNEMpmUMASmXU/exec";
 
 let formData = {};
 
