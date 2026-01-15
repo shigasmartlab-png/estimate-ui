@@ -12,6 +12,7 @@ const MENU_DURATION = {
   multi: 90
 };
 
+
 // ===============================
 // ステップ切り替え
 // ===============================
@@ -182,6 +183,8 @@ async function selectDate(dateStr) {
   const duration = getTotalDuration();
 
   const url = `${API_BASE}?action=availability&date=${dateStr}&duration=${duration}`;
+  console.log("fetch:", url);
+
   const res = await fetch(url);
   const data = await res.json();
 
