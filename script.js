@@ -298,18 +298,19 @@ async function selectDate(dateStr) {
   const timeArea = document.getElementById("time-slots");
   timeArea.innerHTML = "";
 
-  if (!Array.isArray(data)) {
+  // ✅ 修正ポイント：data.slots を使う
+  if (!data || !Array.isArray(data.slots)) {
     timeArea.innerHTML = `<p>空き時間の取得に失敗しました：${data.detail || "不明なエラー"}</p>`;
     console.error("availability API error:", data);
     return;
   }
 
-  if (data.length === 0) {
+  if (data.slots.length === 0) {
     timeArea.innerHTML = "<p>空き時間がありません</p>";
     return;
   }
 
-  data.forEach(time => {
+  data.slots.forEach(time => {
     const btn = document.createElement("button");
     btn.textContent = time;
     btn.onclick = () => selectTime(time);
