@@ -47,34 +47,40 @@ function restoreInputs(stepId) {
 
   if (stepId === "step2") {
     if (formData.menu) {
-      document.querySelector(`input[name="menu"][value="${formData.menu}"]`).checked = true;
+      const m = document.querySelector(`input[name="menu"][value="${formData.menu}"]`);
+      if (m) m.checked = true;
     }
     document.getElementById("is_delivery").checked = !!formData.is_delivery;
   }
 
   if (stepId === "step_screen") {
     if (formData.screen_os) {
-      document.querySelector(`input[name="screen_os"][value="${formData.screen_os}"]`).checked = true;
+      const os = document.querySelector(`input[name="screen_os"][value="${formData.screen_os}"]`);
+      if (os) os.checked = true;
     }
     document.getElementById("screen_model").value = formData.screen_model || "";
     if (formData.screen_quality) {
-      document.querySelector(`input[name="screen_quality"][value="${formData.screen_quality}"]`).checked = true;
+      const q = document.querySelector(`input[name="screen_quality"][value="${formData.screen_quality}"]`);
+      if (q) q.checked = true;
     }
   }
 
   if (stepId === "step_battery") {
     if (formData.battery_os) {
-      document.querySelector(`input[name="battery_os"][value="${formData.battery_os}"]`).checked = true;
+      const os = document.querySelector(`input[name="battery_os"][value="${formData.battery_os}"]`);
+      if (os) os.checked = true;
     }
     document.getElementById("battery_model").value = formData.battery_model || "";
     if (formData.battery_quality) {
-      document.querySelector(`input[name="battery_quality"][value="${formData.battery_quality}"]`).checked = true;
+      const q = document.querySelector(`input[name="battery_quality"][value="${formData.battery_quality}"]`);
+      if (q) q.checked = true;
     }
   }
 
   if (stepId === "step_coating") {
     if (formData.coat_type) {
-      document.querySelector(`input[name="coat_type"][value="${formData.coat_type}"]`).checked = true;
+      const t = document.querySelector(`input[name="coat_type"][value="${formData.coat_type}"]`);
+      if (t) t.checked = true;
     }
   }
 
@@ -89,15 +95,18 @@ function restoreInputs(stepId) {
 
   if (stepId === "step_multi_detail") {
     if (formData.multi_os) {
-      document.querySelector(`input[name="multi_os"][value="${formData.multi_os}"]`).checked = true;
+      const os = document.querySelector(`input[name="multi_os"][value="${formData.multi_os}"]`);
+      if (os) os.checked = true;
     }
     document.getElementById("multi_model").value = formData.multi_model || "";
 
     if (formData.multi_battery) {
-      document.querySelector(`input[name="multi_battery"][value="${formData.multi_battery}"]`).checked = true;
+      const b = document.querySelector(`input[name="multi_battery"][value="${formData.multi_battery}"]`);
+      if (b) b.checked = true;
     }
     if (formData.multi_screen) {
-      document.querySelector(`input[name="multi_screen"][value="${formData.multi_screen}"]`).checked = true;
+      const s = document.querySelector(`input[name="multi_screen"][value="${formData.multi_screen}"]`);
+      if (s) s.checked = true;
     }
   }
 }
@@ -298,7 +307,7 @@ async function selectDate(dateStr) {
   const timeArea = document.getElementById("time-slots");
   timeArea.innerHTML = "";
 
-  // ✅ 修正ポイント：data.slots を使う
+  // slots が配列か確認
   if (!data || !Array.isArray(data.slots)) {
     timeArea.innerHTML = `<p>空き時間の取得に失敗しました：${data.detail || "不明なエラー"}</p>`;
     console.error("availability API error:", data);
@@ -310,14 +319,28 @@ async function selectDate(dateStr) {
     return;
   }
 
-  data.slots.forEach(time => {
+  // slots の中身がオブジェクトでも文字列でも対応し、
+  // available: false の枠はグレー表示＋クリック不可にする
+  data.slots.forEach(slot => {
+    const timeStr = typeof slot === "string" ? slot : slot.time;
+    const isAvailable = typeof slot === "string" ? true : slot.available;
+
     const btn = document.createElement("button");
-    btn.textContent = time;
-    btn.onclick = () => selectTime(time);
+    btn.textContent = timeStr;
+
+    if (isAvailable) {
+      btn.onclick = () => selectTime(timeStr);
+    } else {
+      btn.disabled = true;
+      btn.style.background = "#ccc";
+      btn.style.color = "#666";
+      btn.style.cursor = "not-allowed";
+      btn.style.opacity = "0.7";
+    }
+
     timeArea.appendChild(btn);
   });
 }
-
 
 
 // ===============================
@@ -336,7 +359,8 @@ function selectTime(time) {
     formData.date3 = formData.selectedDate;
     formData.time3 = time;
     alert("第3希望を登録しました");
-    document.getElementById("next-to-confirm").style.display = "block";
+    const nextBtn = document.getElementById("next-to-confirm");
+    if (nextBtn) nextBtn.style.display = "block";
   } else {
     alert("すでに3つ選択済みです");
   }
@@ -369,9 +393,9 @@ function buildConfirm() {
     <p>出張対応：${formData.is_delivery ? "あり（＋2時間）" : "なし"}</p>
 
     <h3>希望日</h3>
-    <p>第1希望：${formData.date1} ${formData.time1}</p>
-    <p>第2希望：${formData.date2} ${formData.time2}</p>
-    <p>第3希望：${formData.date3} ${formData.time3}</p>
+    <p>第1希望：${formData.date1 || "-"} ${formData.time1 || ""}</p>
+    <p>第2希望：${formData.date2 || "-"} ${formData.time2 || ""}</p>
+    <p>第3希望：${formData.date3 || "-"} ${formData.time3 || ""}</p>
 
     <h3>予約ID</h3>
     <p>${formData.reservation_id || "送信時に発行されます"}</p>
@@ -425,7 +449,7 @@ async function submitForm() {
     const data = await res.json();
 
     if (!res.ok) {
-      alert("予約エラー：" + data.detail);
+      alert("予約エラー：" + (data.detail || "不明なエラー"));
       return;
     }
 
@@ -451,14 +475,14 @@ async function cancelReservation() {
   }
 
   try {
-    const res = await fetch(`${API_BASE}/cancel?reservation_id=${rid}`, {
+    const res = await fetch(`${API_BASE}/cancel?reservation_id=${encodeURIComponent(rid)}`, {
       method: "DELETE"
     });
 
     const data = await res.json();
 
     if (!res.ok) {
-      alert("キャンセルエラー：" + data.detail);
+      alert("キャンセルエラー：" + (data.detail || "不明なエラー"));
       return;
     }
 
