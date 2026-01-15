@@ -6,6 +6,15 @@ const API_BASE = "https://android-estimate-api.onrender.com";
 let formData = {};
 
 
+// メニューごとの所要時間（分）
+const MENU_DURATION = {
+  screen: 60,   // 画面修理
+  battery: 60,  // バッテリー交換
+  coating: 20,  // ガラスコーティング
+  multi: 90     // 複数（デフォルト値、後で上書きも可）
+};
+
+
 // ===============================
 // ステップ切り替え
 // ===============================
@@ -40,6 +49,7 @@ function restoreInputs(stepId) {
     if (formData.menu) {
       document.querySelector(`input[name="menu"][value="${formData.menu}"]`).checked = true;
     }
+    document.getElementById("is_delivery").checked = !!formData.is_delivery;
   }
 
   if (stepId === "step_screen") {
@@ -118,6 +128,7 @@ function selectMenu() {
   if (!menu) return alert("メニューを選択してください");
 
   formData.menu = menu.value;
+  formData.is_delivery = document.getElementById("is_delivery").checked;
 
   if (menu.value === "screen") showStep("step_screen");
   if (menu.value === "battery") showStep("step_battery");
@@ -193,6 +204,43 @@ function saveMultiMenu() {
 
 
 // ===============================
+// 複数メニューの所要時間計算
+// ===============================
+function calcMultiDuration() {
+  let total = 0;
+
+  if (!formData.multi_menu) return MENU_DURATION.multi;
+
+  if (formData.multi_menu.includes("screen")) total += 60;
+  if (formData.multi_menu.includes("battery")) total += 30;
+  if (formData.multi_menu.includes("coat_screen")) total += 15;
+  if (formData.multi_menu.includes("coat_both")) total += 25;
+
+  return total || MENU_DURATION.multi;
+}
+
+
+// ===============================
+// 総所要時間（出張＋2時間込み）
+// ===============================
+function getTotalDuration() {
+  let base;
+
+  if (formData.menu === "multi") {
+    base = calcMultiDuration();
+  } else {
+    base = MENU_DURATION[formData.menu];
+  }
+
+  if (formData.is_delivery) {
+    base += 120;
+  }
+
+  return base;
+}
+
+
+// ===============================
 // STEP4：複数用の機種入力
 // ===============================
 function saveMultiDetail() {
@@ -242,7 +290,11 @@ document.addEventListener("DOMContentLoaded", function () {
 async function selectDate(dateStr) {
   formData.selectedDate = dateStr;
 
-  const res = await fetch(`${API_BASE}/availability?date=${dateStr}`);
+  const duration = getTotalDuration();
+
+  const res = await fetch(
+    `${API_BASE}/availability?date=${dateStr}&duration=${duration}`
+  );
   const data = await res.json();
 
   const timeArea = document.getElementById("time-slots");
@@ -308,6 +360,7 @@ function buildConfirm() {
 
     <h3>メニュー</h3>
     <p>${formData.menu}</p>
+    <p>出張対応：${formData.is_delivery ? "あり（＋2時間）" : "なし"}</p>
 
     <h3>希望日</h3>
     <p>第1希望：${formData.date1} ${formData.time1}</p>
@@ -315,7 +368,7 @@ function buildConfirm() {
     <p>第3希望：${formData.date3} ${formData.time3}</p>
 
     <h3>予約ID</h3>
-    <p>${formData.reservation_id}</p>
+    <p>${formData.reservation_id || "送信時に発行されます"}</p>
 
     <h3>詳細情報（メモ）</h3>
     <pre>${JSON.stringify(formData, null, 2)}</pre>
@@ -352,6 +405,7 @@ async function submitForm() {
     name: formData.name,
     phone: formData.line_name,
     menu: formData.menu,
+    is_delivery: formData.is_delivery,
     memo: JSON.stringify(formData)
   };
 
