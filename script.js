@@ -1,7 +1,7 @@
 /* ============================================
    設定
 ============================================ */
-const API_BASE = "★あなたのGAS WebアプリURLをここに入れる★";
+const API_BASE = "https://script.google.com/macros/s/AKfycbzINOo8WOkYoqN8y7ku3mHmKcLvRkp_4AkA2gmRfAmgwRJy_bWIYyRZcf1aQmYPHAwl/exec";
 
 const state = {
   selectedDates: [],   // [{date:"2025-01-20", time:"10:00"}, ...]
@@ -23,27 +23,16 @@ function showStep(id) {
    STEP1：カレンダー生成（簡易版）
 ============================================ */
 function initCalendar() {
-  const cal = document.getElementById("calendar");
-  cal.innerHTML = "";
-
-  const today = new Date();
-  for (let i = 0; i < 14; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
-
-    const y = d.getFullYear();
-    const m = ("0" + (d.getMonth() + 1)).slice(-2);
-    const day = ("0" + d.getDate()).slice(-2);
-
-    const dateStr = `${y}-${m}-${day}`;
-
-    const btn = document.createElement("button");
-    btn.textContent = dateStr;
-    btn.style.margin = "5px";
-    btn.onclick = () => loadTimeSlots(dateStr);
-
-    cal.appendChild(btn);
-  }
+  flatpickr("#calendar_input", {
+    dateFormat: "Y-m-d",
+    minDate: "today",
+    maxDate: new Date().fp_incr(30), // 30日先まで
+    disable: [ "2026-01-21", "2026-01-25" ], // 予約済みの日付など
+    locale: "ja",
+    onChange: function(selectedDates, dateStr) {
+      loadTimeSlots(dateStr); // 時間帯表示
+    }
+  });
 }
 
 async function loadTimeSlots(date) {
@@ -71,9 +60,7 @@ async function loadTimeSlots(date) {
   });
 }
 
-function saveSelectedDate() {
-  showStep("step2");
-}
+window.onload = () => { initCalendar(); };
 
 /* ============================================
    STEP2：顧客情報

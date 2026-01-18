@@ -5,8 +5,9 @@
   <title>予約フォーム</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css">
+<!-- flatpickr CSS & JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 
 <body>
@@ -19,7 +20,7 @@
 
   <p>カレンダーから作業希望日を選択してください。</p>
 
-  <div id="calendar"></div>
+  <input type="text" id="calendar_input" placeholder="日付を選択" readonly>
 
   <h3 style="margin-top:20px;">選択可能な時間帯</h3>
   <div id="time-slots"></div>
