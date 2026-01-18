@@ -1,77 +1,85 @@
-// STEP1 状態管理
-state.selectedDates = [];   // [{date:"2026-01-20", time:"10:00"}, ...]
-state.step1Index = 1;       // 1〜3
+/* ============================================
+   設定
+============================================ */
+const API_BASE = "★あなたのGAS WebアプリURLをここに入れる★";
 
-document.getElementById("date-count").textContent = state.step1Index;
+const state = {
+  selectedDates: [],   // [{date:"2025-01-20", time:"10:00"}, ...]
+  customer: {},        // {name, lineName, address, count, identifier}
+  currentUnit: 1,      // 今何台目を入力しているか
+  menuSelections: [],  // [{menuType, delivery, detail:{}}, ...]
+  reservationIds: []   // ["20250120-S1234-01", ...]
+};
 
-// FullCalendar 初期化
-function initCalendar() {
-  const calendarEl = document.getElementById("calendar");
-
-  const calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: "dayGridMonth",
-    locale: "ja",
-    selectable: true,
-
-    dateClick: async function(info) {
-      const date = info.dateStr;
-      await loadTimeSlots(date);
-    }
-  });
-
-  calendar.render();
+/* ============================================
+   STEP切り替え
+============================================ */
+function showStep(id) {
+  document.querySelectorAll(".step").forEach(s => s.style.display = "none");
+  document.getElementById(id).style.display = "block";
 }
 
-// 時間帯取得
+/* ============================================
+   STEP1：カレンダー生成（簡易版）
+============================================ */
+function initCalendar() {
+  const cal = document.getElementById("calendar");
+  cal.innerHTML = "";
+
+  const today = new Date();
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+
+    const y = d.getFullYear();
+    const m = ("0" + (d.getMonth() + 1)).slice(-2);
+    const day = ("0" + d.getDate()).slice(-2);
+
+    const dateStr = `${y}-${m}-${day}`;
+
+    const btn = document.createElement("button");
+    btn.textContent = dateStr;
+    btn.style.margin = "5px";
+    btn.onclick = () => loadTimeSlots(dateStr);
+
+    cal.appendChild(btn);
+  }
+}
+
 async function loadTimeSlots(date) {
   const res = await fetch(`${API_BASE}?action=availability&date=${date}&duration=60`);
   const data = await res.json();
 
-  const container = document.getElementById("time-slots");
-  container.innerHTML = "";
+  const area = document.getElementById("time-slots");
+  area.innerHTML = "";
 
-  data.slots.forEach(slot => {
+  data.slots.forEach(s => {
     const btn = document.createElement("button");
-    btn.textContent = slot.time;
-    btn.disabled = !slot.available;
+    btn.textContent = s.time;
+    btn.disabled = !s.available;
+    btn.style.margin = "5px";
 
     btn.onclick = () => {
-      state.selectedDates[state.step1Index - 1] = {
+      state.selectedDates[state.currentUnit - 1] = {
         date: date,
-        time: slot.time
+        time: s.time
       };
-
       document.getElementById("step1-next").style.display = "block";
     };
 
-    container.appendChild(btn);
+    area.appendChild(btn);
   });
 }
 
-// STEP1 → 次へ
 function saveSelectedDate() {
-  if (!state.selectedDates[state.step1Index - 1]) {
-    alert("日付と時間を選択してください");
-    return;
-  }
-
-  if (state.step1Index < 3) {
-    state.step1Index++;
-    document.getElementById("date-count").textContent = state.step1Index;
-
-    document.getElementById("step1-next").style.display = "none";
-    document.getElementById("time-slots").innerHTML = "";
-  } else {
-    showStep("step2");
-  }
+  showStep("step2");
 }
 
-// 初期化
-initCalendar();
-
-
+/* ============================================
+   STEP2：顧客情報
+============================================ */
 function generateIdentifier() {
-  return "S" + Math.floor(1000 + Math.random() * 9000); // SXXXX
+  return "S" + Math.floor(1000 + Math.random() * 9000);
 }
 
 function saveCustomer() {
@@ -85,33 +93,23 @@ function saveCustomer() {
     return;
   }
 
-  if (count < 1 || count > 99) {
-    alert("予約台数は1〜99の範囲で入力してください");
-    return;
-  }
-
-  // 識別ID（全台共通）
-  const identifier = generateIdentifier();
-
   state.customer = {
     name,
     lineName: line,
     address,
     count,
-    identifier
+    identifier: generateIdentifier()
   };
 
-  // 1台目から開始
-  state.currentUnit = 1;
+  state.menuSelections = Array(count).fill(null).map(() => ({}));
 
+  document.getElementById("unit-title").textContent = `1台目`;
   showStep("step3");
 }
 
-
-function updateUnitTitle() {
-  document.getElementById("unit-title").textContent = `${state.currentUnit}台目`;
-}
-
+/* ============================================
+   STEP3：メニュー選択
+============================================ */
 function saveMenu() {
   const menu = document.querySelector("input[name='menu_type']:checked");
   if (!menu) {
@@ -121,51 +119,35 @@ function saveMenu() {
 
   const delivery = document.getElementById("delivery_flag").checked;
 
-  // 台数ごとのデータを保持
-  state.menuSelections[state.currentUnit - 1] = {
-    menuType: menu.value,
-    delivery: delivery
-  };
+  state.menuSelections[state.currentUnit - 1].menuType = menu.value;
+  state.menuSelections[state.currentUnit - 1].delivery = delivery;
 
-  // STEP4へ遷移（メニューに応じて分岐）
   switch (menu.value) {
     case "screen":
-      showStep("step4_screen");
+      enterStep4Screen();
       break;
     case "battery":
-      showStep("step4_battery");
+      enterStep4Battery();
       break;
     case "coating":
-      showStep("step4_coating");
+      enterStep4Coating();
       break;
     case "other":
-      showStep("step4_other");
+      enterStep4Other();
       break;
     case "multi":
-      showStep("step4_multi");
+      enterStep4Multi();
       break;
   }
 }
 
-// STEP3を開くたびに台数表示を更新
-function enterStep3() {
-  updateUnitTitle();
-  showStep("step3");
-}
-
-
-// STEP4-A：画面修理
-
-// その他選択時の入力欄表示
+/* ============================================
+   STEP4-A：画面修理
+============================================ */
 document.querySelectorAll("input[name='screen_os']").forEach(r => {
   r.addEventListener("change", () => {
-    const otherInput = document.getElementById("screen_os_other");
-    if (r.value === "other") {
-      otherInput.style.display = "inline-block";
-    } else {
-      otherInput.style.display = "none";
-      otherInput.value = "";
-    }
+    const other = document.getElementById("screen_os_other");
+    other.style.display = r.value === "other" ? "inline-block" : "none";
   });
 });
 
@@ -176,9 +158,9 @@ function enterStep4Screen() {
 
 function saveScreen() {
   const os = document.querySelector("input[name='screen_os']:checked");
-  const quality = document.querySelector("input[name='screen_quality']:checked");
+  const q = document.querySelector("input[name='screen_quality']:checked");
 
-  if (!os || !quality) {
+  if (!os || !q) {
     alert("すべての項目を入力してください");
     return;
   }
@@ -192,30 +174,21 @@ function saveScreen() {
     }
   }
 
-  // 台数ごとの詳細データを保存
   state.menuSelections[state.currentUnit - 1].detail = {
     os: osValue,
-    quality: quality.value
+    quality: q.value
   };
 
-  // STEP5-B or STEP5-A or STEP5-C に遷移
   goNextAfterStep4();
 }
 
-
-
-// STEP4-B：バッテリー交換
-
-// その他選択時の入力欄表示
+/* ============================================
+   STEP4-B：バッテリー交換
+============================================ */
 document.querySelectorAll("input[name='battery_os']").forEach(r => {
   r.addEventListener("change", () => {
-    const otherInput = document.getElementById("battery_os_other");
-    if (r.value === "other") {
-      otherInput.style.display = "inline-block";
-    } else {
-      otherInput.style.display = "none";
-      otherInput.value = "";
-    }
+    const other = document.getElementById("battery_os_other");
+    other.style.display = r.value === "other" ? "inline-block" : "none";
   });
 });
 
@@ -226,9 +199,9 @@ function enterStep4Battery() {
 
 function saveBattery() {
   const os = document.querySelector("input[name='battery_os']:checked");
-  const quality = document.querySelector("input[name='battery_quality']:checked");
+  const q = document.querySelector("input[name='battery_quality']:checked");
 
-  if (!os || !quality) {
+  if (!os || !q) {
     alert("すべての項目を入力してください");
     return;
   }
@@ -242,46 +215,33 @@ function saveBattery() {
     }
   }
 
-  // 台数ごとの詳細データを保存
   state.menuSelections[state.currentUnit - 1].detail = {
     os: osValue,
-    quality: quality.value
+    quality: q.value
   };
 
-  // STEP5-A / STEP5-B / STEP5-C に遷移
   goNextAfterStep4();
 }
 
-
-
-// STEP4-C：コーティング
-
-// その他選択時の入力欄表示
+/* ============================================
+   STEP4-C：コーティング
+============================================ */
 document.querySelectorAll("input[name='coat_device']").forEach(r => {
   r.addEventListener("change", () => {
-    const otherInput = document.getElementById("coat_device_other");
-    if (r.value === "other") {
-      otherInput.style.display = "inline-block";
-    } else {
-      otherInput.style.display = "none";
-      otherInput.value = "";
-    }
+    const other = document.getElementById("coat_device_other");
+    other.style.display = r.value === "other" ? "inline-block" : "none";
   });
 });
 
-// 台数入力 → プルダウン自動生成
 document.getElementById("coat_count").addEventListener("input", () => {
   const count = Number(document.getElementById("coat_count").value);
   const area = document.getElementById("coat_options_area");
-
   area.innerHTML = "";
 
   if (!count || count < 1 || count > 99) return;
 
   for (let i = 1; i <= count; i++) {
     const div = document.createElement("div");
-    div.style.marginBottom = "10px";
-
     div.innerHTML = `
       <label>${i}台目のコーティング種類</label>
       <select id="coat_type_${i}">
@@ -289,7 +249,6 @@ document.getElementById("coat_count").addEventListener("input", () => {
         <option value="both">画面＋裏面</option>
       </select>
     `;
-
     area.appendChild(div);
   }
 });
@@ -317,37 +276,27 @@ function saveCoating() {
     }
   }
 
-  // 台数分のコーティング種類を取得
   const types = [];
   for (let i = 1; i <= count; i++) {
-    const val = document.getElementById(`coat_type_${i}`).value;
-    types.push(val);
+    types.push(document.getElementById(`coat_type_${i}`).value);
   }
 
-  // 台数ごとの詳細データを保存
   state.menuSelections[state.currentUnit - 1].detail = {
     device: deviceValue,
-    count: count,
-    types: types
+    count,
+    types
   };
 
-  // STEP5-A / STEP5-B / STEP5-C に遷移
   goNextAfterStep4();
 }
 
-
-// STEP4-D：その他修理
-
-// その他選択時の入力欄表示
+/* ============================================
+   STEP4-D：その他修理
+============================================ */
 document.querySelectorAll("input[name='other_os']").forEach(r => {
   r.addEventListener("change", () => {
-    const otherInput = document.getElementById("other_os_other");
-    if (r.value === "other") {
-      otherInput.style.display = "inline-block";
-    } else {
-      otherInput.style.display = "none";
-      otherInput.value = "";
-    }
+    const other = document.getElementById("other_os_other");
+    other.style.display = r.value === "other" ? "inline-block" : "none";
   });
 });
 
@@ -374,28 +323,25 @@ function saveOther() {
     }
   }
 
-  // 台数ごとの詳細データを保存
   state.menuSelections[state.currentUnit - 1].detail = {
     os: osValue,
     repair: detail
   };
 
-  // STEP5-A / STEP5-B / STEP5-C に遷移
   goNextAfterStep4();
 }
 
-
-// STEP4-E：複数組み合わせ
-
-// その他選択時の入力欄表示
+/* ============================================
+   STEP4-E：複数組み合わせ
+============================================ */
 document.querySelectorAll("input[name='multi_menu']").forEach(c => {
   c.addEventListener("change", () => {
-    const otherInput = document.getElementById("multi_other_text");
+    const other = document.getElementById("multi_other_text");
     if (c.value === "other" && c.checked) {
-      otherInput.style.display = "inline-block";
+      other.style.display = "inline-block";
     } else if (c.value === "other") {
-      otherInput.style.display = "none";
-      otherInput.value = "";
+      other.style.display = "none";
+      other.value = "";
     }
   });
 });
@@ -413,7 +359,6 @@ function saveMultiMenu() {
     return;
   }
 
-  // その他が選択されている場合
   let otherText = "";
   if (checked.includes("other")) {
     otherText = document.getElementById("multi_other_text").value.trim();
@@ -423,29 +368,21 @@ function saveMultiMenu() {
     }
   }
 
-  // 台数ごとの詳細データを保存
   state.menuSelections[state.currentUnit - 1].detail = {
     selected: checked,
-    otherText: otherText
+    otherText
   };
 
-  // STEP5-C（機種等入力）へ遷移
-  showStep("step5_c");
+  enterStep5C();
 }
 
-
-// STEP5-C：複数組み合わせ → 機種等入力
-
-// その他選択時の入力欄表示
+/* ============================================
+   STEP5-C：複数組み合わせ → 機種等入力
+============================================ */
 document.querySelectorAll("input[name='multi_os']").forEach(r => {
   r.addEventListener("change", () => {
-    const otherInput = document.getElementById("multi_os_other");
-    if (r.value === "other") {
-      otherInput.style.display = "inline-block";
-    } else {
-      otherInput.style.display = "none";
-      otherInput.value = "";
-    }
+    const other = document.getElementById("multi_os_other");
+    other.style.display = r.value === "other" ? "inline-block" : "none";
   });
 });
 
@@ -456,11 +393,10 @@ function enterStep5C() {
   const area = document.getElementById("multi_dynamic_area");
   area.innerHTML = "";
 
-  // 動的に入力欄を生成
   selected.forEach(type => {
     if (type === "screen") {
       area.innerHTML += `
-        <div style="margin-bottom:20px;">
+        <div>
           <h3>画面修理</h3>
           <label><input type="radio" name="multi_screen_quality" value="LCD"> LCD</label>
           <label><input type="radio" name="multi_screen_quality" value="OLED"> OLED</label>
@@ -471,7 +407,7 @@ function enterStep5C() {
 
     if (type === "battery") {
       area.innerHTML += `
-        <div style="margin-bottom:20px;">
+        <div>
           <h3>バッテリー交換</h3>
           <label><input type="radio" name="multi_battery_quality" value="standard"> 標準</label>
           <label><input type="radio" name="multi_battery_quality" value="large"> 大容量</label>
@@ -481,7 +417,7 @@ function enterStep5C() {
 
     if (type === "other") {
       area.innerHTML += `
-        <div style="margin-bottom:20px;">
+        <div>
           <h3>その他修理</h3>
           <input type="text" id="multi_other_detail" placeholder="修理内容を入力">
         </div>
@@ -490,7 +426,7 @@ function enterStep5C() {
 
     if (type === "coat_screen" || type === "coat_both") {
       area.innerHTML += `
-        <div style="margin-bottom:20px;">
+        <div>
           <h3>ガラスコーティング</h3>
           <label>機器選択</label>
           <select id="multi_coat_device">
@@ -498,21 +434,15 @@ function enterStep5C() {
             <option value="tablet">タブレット</option>
             <option value="other">その他</option>
           </select>
-          <input type="text" id="multi_coat_device_other" placeholder="機器名を入力" style="display:none; margin-left:10px;">
+          <input type="text" id="multi_coat_device_other" placeholder="機器名を入力" style="display:none;">
         </div>
       `;
 
-      // その他選択時の表示
       setTimeout(() => {
         const dev = document.getElementById("multi_coat_device");
         dev.addEventListener("change", () => {
           const other = document.getElementById("multi_coat_device_other");
-          if (dev.value === "other") {
-            other.style.display = "inline-block";
-          } else {
-            other.style.display = "none";
-            other.value = "";
-          }
+          other.style.display = dev.value === "other" ? "inline-block" : "none";
         });
       }, 50);
     }
@@ -540,7 +470,6 @@ function saveStep5C() {
   const selected = state.menuSelections[state.currentUnit - 1].detail.selected;
   const detail = { os: osValue };
 
-  // 画面修理
   if (selected.includes("screen")) {
     const q = document.querySelector("input[name='multi_screen_quality']:checked");
     if (!q) {
@@ -550,7 +479,6 @@ function saveStep5C() {
     detail.screenQuality = q.value;
   }
 
-  // バッテリー
   if (selected.includes("battery")) {
     const q = document.querySelector("input[name='multi_battery_quality']:checked");
     if (!q) {
@@ -560,7 +488,6 @@ function saveStep5C() {
     detail.batteryQuality = q.value;
   }
 
-  // その他修理
   if (selected.includes("other")) {
     const t = document.getElementById("multi_other_detail").value.trim();
     if (!t) {
@@ -570,7 +497,6 @@ function saveStep5C() {
     detail.otherDetail = t;
   }
 
-  // コーティング
   if (selected.includes("coat_screen") || selected.includes("coat_both")) {
     const dev = document.getElementById("multi_coat_device").value;
     let devValue = dev;
@@ -585,22 +511,38 @@ function saveStep5C() {
     detail.coatType = selected.includes("coat_both") ? "both" : "screen";
   }
 
-  // 保存
   state.menuSelections[state.currentUnit - 1].detail = detail;
 
-  // 次へ（台数ループ or 確認画面）
   showStep("step5_b");
 }
 
+/* ============================================
+   STEP4 → STEP5-B or STEP5-C
+============================================ */
+function goNextAfterStep4() {
+  const menu = state.menuSelections[state.currentUnit - 1].menuType;
 
+  if (menu === "multi") {
+    enterStep5C();
+  } else {
+    showStep("step5_b");
+  }
+}
 
-// STEP5-B：送信して次の台へ
+/* ============================================
+   STEP5-B：送信して次の台へ
+============================================ */
+function generateReservationId(date, identifier, unit) {
+  const y = date.replace(/-/g, "");
+  const u = ("0" + unit).slice(-2);
+  return `${y}-${identifier}-${u}`;
+}
 
 async function sendAndNext() {
   const unit = state.currentUnit;
   const customer = state.customer;
   const menu = state.menuSelections[unit - 1];
-  const dateInfo = state.selectedDates[unit - 1]; // 1台目→1日目、2台目→2日目
+  const dateInfo = state.selectedDates[unit - 1];
 
   // 予約ID生成
   const reservationId = generateReservationId(
@@ -622,10 +564,10 @@ async function sendAndNext() {
     address: customer.address,
     menu_type: menu.menuType,
     menu_detail: menu.detail,
-    delivery: menu.delivery
+    delivery: menu.delivery ? 1 : 0
   };
 
-  // GAS へ送信
+  // 送信
   const res = await fetch(API_BASE, {
     method: "POST",
     body: JSON.stringify(payload)
@@ -634,7 +576,7 @@ async function sendAndNext() {
   const data = await res.json();
 
   if (!data.success) {
-    alert("送信に失敗しました");
+    alert("送信に失敗しました。通信環境をご確認ください。");
     return;
   }
 
@@ -644,16 +586,17 @@ async function sendAndNext() {
   // 次の台へ
   if (unit < customer.count) {
     state.currentUnit++;
-    enterStep3(); // 次の台のSTEP3へ
+    document.getElementById("unit-title").textContent = `${state.currentUnit}台目`;
+    showStep("step3");
   } else {
-    // 全台終了 → STEP5-A（最終確認）
-    showStep("step5_a");
+    // 全台終了 → 最終確認へ
+    enterStep5A();
   }
 }
 
-
-// STEP5-A：最終確認画面
-
+/* ============================================
+   STEP5-A：最終確認
+============================================ */
 function enterStep5A() {
   const area = document.getElementById("confirm_area");
   area.innerHTML = "";
@@ -692,15 +635,29 @@ function enterStep5A() {
   showStep("step5_a");
 }
 
-
+/* ============================================
+   STEP6：送信完了 → thanks.html へ
+============================================ */
 function finalSubmit() {
-  // thanks.html に予約ID一覧を渡す
   const ids = state.reservationIds.join(",");
   location.href = `thanks.html?ids=${ids}`;
 }
-
 
 function goThanks() {
   const ids = state.reservationIds.join(",");
   location.href = `thanks.html?ids=${ids}`;
 }
+
+/* ============================================
+   戻る処理
+============================================ */
+function backTo(step) {
+  showStep(step);
+}
+
+/* ============================================
+   初期化
+============================================ */
+window.onload = () => {
+  initCalendar();
+};

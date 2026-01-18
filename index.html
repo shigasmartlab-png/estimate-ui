@@ -1,3 +1,19 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>予約フォーム</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- ============================
+     STEP1：作業希望日の設定
+============================ -->
 <section class="step" id="step1" style="display:block;">
   <h2>STEP 1 / 7<br>作業希望日の設定（<span id="date-count">1</span> / 3）</h2>
 
@@ -14,6 +30,9 @@
 </section>
 
 
+<!-- ============================
+     STEP2：お客様情報
+============================ -->
 <section class="step" id="step2">
   <h2>STEP 2 / 7<br>お客様情報の入力</h2>
 
@@ -36,6 +55,9 @@
 </section>
 
 
+<!-- ============================
+     STEP3：メニュー選択
+============================ -->
 <section class="step" id="step3">
   <h2>STEP 3 / 7<br><span id="unit-title">1台目</span>：メニュー選択</h2>
 
@@ -56,6 +78,9 @@
 </section>
 
 
+<!-- ============================
+     STEP4-A：画面修理
+============================ -->
 <section class="step" id="step4_screen">
   <h2>STEP 4 / 7<br><span id="unit-title-screen">1台目</span>：画面修理</h2>
 
@@ -69,20 +94,9 @@
 
   <label style="margin-top:20px;">画面品質</label>
 
-  <label>
-    <input type="radio" name="screen_quality" value="LCD">
-    LCD（低価格・標準品質）
-  </label>
-
-  <label>
-    <input type="radio" name="screen_quality" value="OLED">
-    OLED（高品質・高発色）
-  </label>
-
-  <label>
-    <input type="radio" name="screen_quality" value="refurb">
-    再生品（純正再生パネル）
-  </label>
+  <label><input type="radio" name="screen_quality" value="LCD"> LCD（低価格・標準品質）</label>
+  <label><input type="radio" name="screen_quality" value="OLED"> OLED（高品質・高発色）</label>
+  <label><input type="radio" name="screen_quality" value="refurb"> 再生品（純正再生パネル）</label>
 
   <button onclick="saveScreen()">次へ進む</button>
 
@@ -91,6 +105,9 @@
 </section>
 
 
+<!-- ============================
+     STEP4-B：バッテリー交換
+============================ -->
 <section class="step" id="step4_battery">
   <h2>STEP 4 / 7<br><span id="unit-title-battery">1台目</span>：バッテリー交換</h2>
 
@@ -104,15 +121,8 @@
 
   <label style="margin-top:20px;">バッテリー品質</label>
 
-  <label>
-    <input type="radio" name="battery_quality" value="standard">
-    標準（純正同等の一般的な品質）
-  </label>
-
-  <label>
-    <input type="radio" name="battery_quality" value="large">
-    大容量（長持ちタイプ・高耐久）
-  </label>
+  <label><input type="radio" name="battery_quality" value="standard"> 標準（純正同等）</label>
+  <label><input type="radio" name="battery_quality" value="large"> 大容量（長持ちタイプ）</label>
 
   <button onclick="saveBattery()">次へ進む</button>
 
@@ -121,6 +131,9 @@
 </section>
 
 
+<!-- ============================
+     STEP4-C：コーティング
+============================ -->
 <section class="step" id="step4_coating">
   <h2>STEP 4 / 7<br><span id="unit-title-coating">1台目</span>：ガラスコーティング</h2>
 
@@ -144,6 +157,9 @@
 </section>
 
 
+<!-- ============================
+     STEP4-D：その他修理
+============================ -->
 <section class="step" id="step4_other">
   <h2>STEP 4 / 7<br><span id="unit-title-other">1台目</span>：その他修理</h2>
 
@@ -156,7 +172,7 @@
   </label>
 
   <label style="margin-top:20px;">修理箇所</label>
-  <input type="text" id="other_repair_detail" placeholder="例：充電口、スピーカー、背面ガラスなど">
+  <input type="text" id="other_repair_detail" placeholder="例：充電口、スピーカーなど">
 
   <button onclick="saveOther()">次へ進む</button>
 
@@ -165,6 +181,9 @@
 </section>
 
 
+<!-- ============================
+     STEP4-E：複数組み合わせ
+============================ -->
 <section class="step" id="step4_multi">
   <h2>STEP 4 / 7<br><span id="unit-title-multi">1台目</span>：複数組み合わせ</h2>
 
@@ -187,6 +206,9 @@
 </section>
 
 
+<!-- ============================
+     STEP5-C：複数組み合わせ → 機種等入力
+============================ -->
 <section class="step" id="step5_c">
   <h2>STEP 5 / 7<br><span id="unit-title-step5c">1台目</span>：機種等の入力</h2>
 
@@ -207,6 +229,9 @@
 </section>
 
 
+<!-- ============================
+     STEP5-B：送信して次の台へ
+============================ -->
 <section class="step" id="step5_b">
   <h2>STEP 5 / 7<br>送信して次の台へ</h2>
 
@@ -219,7 +244,9 @@
 </section>
 
 
-
+<!-- ============================
+     STEP5-A：最終確認
+============================ -->
 <section class="step" id="step5_a">
   <h2>STEP 6 / 7<br>最終確認</h2>
 
@@ -232,6 +259,9 @@
 </section>
 
 
+<!-- ============================
+     STEP6：送信完了
+============================ -->
 <section class="step" id="step6">
   <h2>STEP 7 / 7<br>送信完了</h2>
 
@@ -242,3 +272,12 @@
 
   <button onclick="location.href='cancel.html'" class="cancel-btn">予約をキャンセルする</button>
 </section>
+
+
+<!-- ============================
+     JS 読み込み
+============================ -->
+<script src="script.js"></script>
+
+</body>
+</html>
