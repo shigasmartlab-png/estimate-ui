@@ -2,63 +2,40 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>予約完了</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
     body {
       background: #000;
       color: #fff;
       font-family: "Helvetica", "Arial", sans-serif;
+      padding: 20px;
       text-align: center;
-      padding: 40px 20px;
-      line-height: 1.7;
     }
-
-    h1 {
-      font-size: 26px;
-      margin-bottom: 20px;
-    }
-
-    .box {
-      background: #111;
-      padding: 25px;
-      border-radius: 10px;
-      margin: 20px auto;
-      max-width: 500px;
-      border: 1px solid #333;
-    }
-
     .id-box {
-      font-size: 20px;
-      font-weight: bold;
-      margin-top: 10px;
-      padding: 10px;
-      background: #222;
+      background: #111;
+      padding: 15px;
+      margin: 10px 0;
       border-radius: 6px;
-      border: 1px solid #444;
+      font-size: 18px;
     }
-
-    .note {
-      font-size: 13px;
-      color: #ccc;
-      margin-top: 10px;
-    }
-
     button {
-      margin-top: 30px;
-      padding: 12px 25px;
+      margin-top: 20px;
+      padding: 10px 20px;
       font-size: 16px;
       border: none;
       border-radius: 6px;
-      background: #fff;
-      color: #000;
       cursor: pointer;
-      font-weight: bold;
     }
-
-    button:hover {
-      opacity: 0.8;
+    .top-btn {
+      background: #4cd964;
+      color: #000;
+    }
+    .cancel-btn {
+      background: #ff3b30;
+      color: #fff;
+      margin-left: 10px;
     }
   </style>
 </head>
@@ -66,28 +43,24 @@
 <body>
 
   <h1>予約が完了しました</h1>
+  <p>以下が予約IDです。控えておいてください。</p>
 
-  <div class="box">
-    <p>ご予約ありがとうございます。<br>
-    内容を確認後、担当者よりご連絡いたします。</p>
+  <div id="id-area"></div>
 
-    <p>あなたの予約ID：</p>
-    <div id="reservation-id" class="id-box">取得できませんでした</div>
-
-    <p class="note">※予約IDはキャンセル時に必要です。必ず控えておいてください。</p>
-  </div>
-
-  <button onclick="location.href='index.html'">トップに戻る</button>
+  <button class="top-btn" onclick="location.href='index.html'">トップに戻る</button>
+  <button class="cancel-btn" onclick="location.href='cancel.html'">予約をキャンセルする</button>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const id = localStorage.getItem("reservation_id");
+    const params = new URLSearchParams(location.search);
+    const ids = params.get("ids")?.split(",") || [];
 
-      if (id && id !== "undefined" && id !== "null") {
-        document.getElementById("reservation-id").textContent = id;
-      } else {
-        document.getElementById("reservation-id").textContent = "取得できませんでした";
-      }
+    const area = document.getElementById("id-area");
+
+    ids.forEach((id, i) => {
+      const div = document.createElement("div");
+      div.className = "id-box";
+      div.textContent = `${i + 1}台目：${id}`;
+      area.appendChild(div);
     });
   </script>
 

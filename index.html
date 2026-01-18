@@ -1,191 +1,244 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>予約フォーム</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<section class="step" id="step1" style="display:block;">
+  <h2>STEP 1 / 7<br>作業希望日の設定（<span id="date-count">1</span> / 3）</h2>
 
-  <!-- ダークモードCSS -->
-  <link rel="stylesheet" href="style.css">
+  <p>カレンダーから作業希望日を選択してください。</p>
 
-  <!-- FullCalendar CDN -->
-  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-</head>
-<body>
+  <div id="calendar"></div>
 
-<div id="form-container">
+  <h3 style="margin-top:20px;">選択可能な時間帯</h3>
+  <div id="time-slots"></div>
 
-  <!-- STEP 1 -->
-  <section class="step" id="step1" style="display:block;">
-    <h2>STEP 1 / 6<br>基本情報</h2>
+  <button id="step1-next" style="display:none;" onclick="saveSelectedDate()">次へ進む</button>
 
-    <label>名前</label>
-    <input type="text" id="name">
+  <button onclick="location.href='cancel.html'" class="cancel-btn">予約をキャンセルする</button>
+</section>
 
-    <label>LINE表示名</label>
-    <input type="text" id="line_name">
 
-    <label>住所</label>
-    <input type="text" id="address">
+<section class="step" id="step2">
+  <h2>STEP 2 / 7<br>お客様情報の入力</h2>
 
-    <button onclick="goStep2()">次へ進む</button>
+  <label>名前（必須）</label>
+  <input type="text" id="customer_name" required>
 
-    <!-- ▼ 追加：キャンセルページへの導線 ▼ -->
-    <div style="text-align:center; margin-top:20px;">
-      <button 
-        onclick="location.href='cancel.html'" 
-        style="
-          background:#444;
-          color:#fff;
-          padding:10px 20px;
-          border:none;
-          border-radius:6px;
-          font-size:16px;
-          cursor:pointer;
-          margin-top:10px;
-        ">
-        予約キャンセルはこちら
-      </button>
-    </div>
-    <!-- ▲ 追加ここまで ▲ -->
+  <label>LINE表示名（必須）</label>
+  <input type="text" id="customer_line" required>
 
-  </section>
+  <label>住所（必須）</label>
+  <input type="text" id="customer_address" required>
 
-  <!-- STEP 2 -->
-  <section class="step" id="step2">
-    <h2>STEP 2 / 6<br>メニュー選択</h2>
+  <label>予約台数（1〜99）</label>
+  <input type="number" id="customer_count" min="1" max="99" required>
 
-    <label><input type="radio" name="menu" value="screen"> 画面修理</label>
-    <label><input type="radio" name="menu" value="battery"> バッテリー交換</label>
-    <label><input type="radio" name="menu" value="coating"> ガラスコーティング</label>
-    <label><input type="radio" name="menu" value="multi"> 複数組み合わせ</label>
+  <button onclick="saveCustomer()">次へ進む</button>
 
-    <label style="margin-top:16px;">
-      <input type="checkbox" id="is_delivery"> 出張対応を希望する（＋2時間）
-    </label>
+  <button onclick="backTo('step1')">前のページに戻る</button>
+  <button onclick="location.href='cancel.html'" class="cancel-btn">予約をキャンセルする</button>
+</section>
 
-    <button onclick="selectMenu()">次へ進む</button>
-    <button onclick="backTo('step1')">前の画面に戻る</button>
-  </section>
 
-  <!-- STEP 3-A：画面修理 -->
-  <section class="step" id="step_screen">
-    <h2>STEP 3 / 6<br>画面修理</h2>
+<section class="step" id="step3">
+  <h2>STEP 3 / 7<br><span id="unit-title">1台目</span>：メニュー選択</h2>
 
-    <label>機種</label>
-    <label><input type="radio" name="screen_os" value="iPhone"> iPhone</label>
-    <label><input type="radio" name="screen_os" value="Android"> Android</label>
+  <label><input type="radio" name="menu_type" value="screen"> 画面修理</label>
+  <label><input type="radio" name="menu_type" value="battery"> バッテリー交換</label>
+  <label><input type="radio" name="menu_type" value="coating"> ガラスコーティング</label>
+  <label><input type="radio" name="menu_type" value="other"> その他修理</label>
+  <label><input type="radio" name="menu_type" value="multi"> 複数組み合わせ</label>
 
-    <label>機種詳細</label>
-    <input type="text" id="screen_model">
+  <label style="margin-top:16px;">
+    <input type="checkbox" id="delivery_flag"> 出張対応を希望する（＋2時間）
+  </label>
 
-    <label>画面品質</label>
-    <label><input type="radio" name="screen_quality" value="LCD"> LCD</label>
-    <label><input type="radio" name="screen_quality" value="OLED"> OLED</label>
-    <label><input type="radio" name="screen_quality" value="refurb"> 再生品</label>
+  <button onclick="saveMenu()">次へ進む</button>
 
-    <button onclick="saveScreen()">次へ進む</button>
-    <button onclick="backTo('step2')">前の画面に戻る</button>
-  </section>
+  <button onclick="backTo('step2')">前のページに戻る</button>
+  <button onclick="location.href='cancel.html'" class="cancel-btn">予約をキャンセルする</button>
+</section>
 
-  <!-- STEP 3-B：バッテリー交換 -->
-  <section class="step" id="step_battery">
-    <h2>STEP 3 / 6<br>バッテリー交換</h2>
 
-    <label>機種</label>
-    <label><input type="radio" name="battery_os" value="iPhone"> iPhone</label>
-    <label><input type="radio" name="battery_os" value="Android"> Android</label>
+<section class="step" id="step4_screen">
+  <h2>STEP 4 / 7<br><span id="unit-title-screen">1台目</span>：画面修理</h2>
 
-    <label>機種詳細</label>
-    <input type="text" id="battery_model">
+  <label>機種選択</label>
+  <label><input type="radio" name="screen_os" value="iPhone"> iPhone</label>
+  <label><input type="radio" name="screen_os" value="Android"> Android</label>
+  <label>
+    <input type="radio" name="screen_os" value="other"> その他
+    <input type="text" id="screen_os_other" placeholder="機種名を入力" style="display:none; margin-left:10px;">
+  </label>
 
-    <label>品質</label>
-    <label><input type="radio" name="battery_quality" value="standard"> 標準</label>
-    <label><input type="radio" name="battery_quality" value="large"> 大容量</label>
+  <label style="margin-top:20px;">画面品質</label>
 
-    <button onclick="saveBattery()">次へ進む</button>
-    <button onclick="backTo('step2')">前の画面に戻る</button>
-  </section>
+  <label>
+    <input type="radio" name="screen_quality" value="LCD">
+    LCD（低価格・標準品質）
+  </label>
 
-  <!-- STEP 3-C：ガラスコーティング -->
-  <section class="step" id="step_coating">
-    <h2>STEP 3 / 6<br>ガラスコーティング</h2>
+  <label>
+    <input type="radio" name="screen_quality" value="OLED">
+    OLED（高品質・高発色）
+  </label>
 
-    <label><input type="radio" name="coat_type" value="screen"> 画面のみ</label>
-    <label><input type="radio" name="coat_type" value="body"> 本体のみ</label>
-    <label><input type="radio" name="coat_type" value="both"> 表と裏の2面</label>
-    <label><input type="radio" name="coat_type" value="other"> その他</label>
+  <label>
+    <input type="radio" name="screen_quality" value="refurb">
+    再生品（純正再生パネル）
+  </label>
 
-    <button onclick="saveCoating()">次へ進む</button>
-    <button onclick="backTo('step2')">前の画面に戻る</button>
-  </section>
+  <button onclick="saveScreen()">次へ進む</button>
 
-  <!-- STEP 3-D：複数 -->
-  <section class="step" id="step_multi">
-    <h2>STEP 3 / 6<br>複数メニュー</h2>
+  <button onclick="backTo('step3')">前のページに戻る</button>
+  <button onclick="location.href='cancel.html'" class="cancel-btn">予約をキャンセルする</button>
+</section>
 
-    <label><input type="checkbox" name="multi_menu" value="screen"> 画面修理</label>
-    <label><input type="checkbox" name="multi_menu" value="battery"> バッテリー交換</label>
-    <label><input type="checkbox" name="multi_menu" value="coat_screen"> ガラス（画面）</label>
-    <label><input type="checkbox" name="multi_menu" value="coat_both"> ガラス（画面＋裏面）</label>
 
-    <button onclick="saveMultiMenu()">次へ進む</button>
-    <button onclick="backTo('step2')">前の画面に戻る</button>
-  </section>
+<section class="step" id="step4_battery">
+  <h2>STEP 4 / 7<br><span id="unit-title-battery">1台目</span>：バッテリー交換</h2>
 
-  <!-- STEP 4：複数用の機種入力 -->
-  <section class="step" id="step_multi_detail">
-    <h2>STEP 4 / 6<br>機種等の入力</h2>
+  <label>機種選択</label>
+  <label><input type="radio" name="battery_os" value="iPhone"> iPhone</label>
+  <label><input type="radio" name="battery_os" value="Android"> Android</label>
+  <label>
+    <input type="radio" name="battery_os" value="other"> その他
+    <input type="text" id="battery_os_other" placeholder="機種名を入力" style="display:none; margin-left:10px;">
+  </label>
 
-    <label>機種</label>
-    <label><input type="radio" name="multi_os" value="iPhone"> iPhone</label>
-    <label><input type="radio" name="multi_os" value="Android"> Android</label>
-    <label><input type="radio" name="multi_os" value="other"> その他</label>
+  <label style="margin-top:20px;">バッテリー品質</label>
 
-    <label>機種詳細</label>
-    <input type="text" id="multi_model">
+  <label>
+    <input type="radio" name="battery_quality" value="standard">
+    標準（純正同等の一般的な品質）
+  </label>
 
-    <label>バッテリー交換（任意）</label>
-    <label><input type="radio" name="multi_battery" value="none"> 交換しない</label>
-    <label><input type="radio" name="multi_battery" value="standard"> 標準</label>
-    <label><input type="radio" name="multi_battery" value="large"> 大容量</label>
+  <label>
+    <input type="radio" name="battery_quality" value="large">
+    大容量（長持ちタイプ・高耐久）
+  </label>
 
-    <label>画面修理（任意）</label>
-    <label><input type="radio" name="multi_screen" value="none"> 修理しない</label>
-    <label><input type="radio" name="multi_screen" value="LCD"> LCD</label>
-    <label><input type="radio" name="multi_screen" value="OLED"> OLED</label>
-    <label><input type="radio" name="multi_screen" value="refurb"> 再生品</label>
+  <button onclick="saveBattery()">次へ進む</button>
 
-    <button onclick="saveMultiDetail()">次へ進む</button>
-    <button onclick="backTo('step_multi')">前の画面に戻る</button>
-  </section>
+  <button onclick="backTo('step3')">前のページに戻る</button>
+  <button onclick="location.href='cancel.html'" class="cancel-btn">予約をキャンセルする</button>
+</section>
 
-  <!-- STEP 5：FullCalendar（空き状況チェック） -->
-  <section class="step" id="step5">
-    <h2>STEP 5 / 6<br>作業希望日</h2>
 
-    <div id="calendar"></div>
+<section class="step" id="step4_coating">
+  <h2>STEP 4 / 7<br><span id="unit-title-coating">1台目</span>：ガラスコーティング</h2>
 
-    <h3 style="margin-top:20px;">空き時間</h3>
-    <div id="time-slots"></div>
+  <label>機器選択</label>
+  <label><input type="radio" name="coat_device" value="smartphone"> スマホ</label>
+  <label><input type="radio" name="coat_device" value="tablet"> タブレット</label>
+  <label>
+    <input type="radio" name="coat_device" value="other"> その他
+    <input type="text" id="coat_device_other" placeholder="機器名を入力" style="display:none; margin-left:10px;">
+  </label>
 
-    <button id="next-to-confirm" style="display:none;" onclick="goToConfirm()">確認画面へ</button>
-    <button onclick="backTo('step2')">前の画面に戻る</button>
-  </section>
+  <label style="margin-top:20px;">台数（1〜99）</label>
+  <input type="number" id="coat_count" min="1" max="99">
 
-  <!-- STEP 6：確認画面 -->
-  <section class="step" id="step6">
-    <h2>STEP 6 / 6<br>確認画面</h2>
+  <div id="coat_options_area" style="margin-top:20px;"></div>
 
-    <div id="confirm-area"></div>
+  <button onclick="saveCoating()">次へ進む</button>
 
-    <button onclick="submitForm()">送信する</button>
-    <button onclick="backTo('step5')">前の画面に戻る</button>
-  </section>
+  <button onclick="backTo('step3')">前のページに戻る</button>
+  <button onclick="location.href='cancel.html'" class="cancel-btn">予約をキャンセルする</button>
+</section>
 
-</div>
 
-<script src="script.js"></script>
-</body>
-</html>
+<section class="step" id="step4_other">
+  <h2>STEP 4 / 7<br><span id="unit-title-other">1台目</span>：その他修理</h2>
+
+  <label>機種選択</label>
+  <label><input type="radio" name="other_os" value="iPhone"> iPhone</label>
+  <label><input type="radio" name="other_os" value="Android"> Android</label>
+  <label>
+    <input type="radio" name="other_os" value="other"> その他
+    <input type="text" id="other_os_other" placeholder="機種名を入力" style="display:none; margin-left:10px;">
+  </label>
+
+  <label style="margin-top:20px;">修理箇所</label>
+  <input type="text" id="other_repair_detail" placeholder="例：充電口、スピーカー、背面ガラスなど">
+
+  <button onclick="saveOther()">次へ進む</button>
+
+  <button onclick="backTo('step3')">前のページに戻る</button>
+  <button onclick="location.href='cancel.html'" class="cancel-btn">予約をキャンセルする</button>
+</section>
+
+
+<section class="step" id="step4_multi">
+  <h2>STEP 4 / 7<br><span id="unit-title-multi">1台目</span>：複数組み合わせ</h2>
+
+  <label><input type="checkbox" name="multi_menu" value="screen"> 画面修理</label>
+  <label><input type="checkbox" name="multi_menu" value="battery"> バッテリー交換</label>
+
+  <label>
+    <input type="checkbox" name="multi_menu" value="other">
+    その他
+    <input type="text" id="multi_other_text" placeholder="修理内容を入力" style="display:none; margin-left:10px;">
+  </label>
+
+  <label><input type="checkbox" name="multi_menu" value="coat_screen"> ガラスコーティング（画面のみ）</label>
+  <label><input type="checkbox" name="multi_menu" value="coat_both"> ガラスコーティング（画面＋裏面）</label>
+
+  <button onclick="saveMultiMenu()">次へ進む</button>
+
+  <button onclick="backTo('step3')">前のページに戻る</button>
+  <button onclick="location.href='cancel.html'" class="cancel-btn">予約をキャンセルする</button>
+</section>
+
+
+<section class="step" id="step5_c">
+  <h2>STEP 5 / 7<br><span id="unit-title-step5c">1台目</span>：機種等の入力</h2>
+
+  <label>機種選択</label>
+  <label><input type="radio" name="multi_os" value="iPhone"> iPhone</label>
+  <label><input type="radio" name="multi_os" value="Android"> Android</label>
+  <label>
+    <input type="radio" name="multi_os" value="other"> その他
+    <input type="text" id="multi_os_other" placeholder="機種名を入力" style="display:none; margin-left:10px;">
+  </label>
+
+  <div id="multi_dynamic_area" style="margin-top:20px;"></div>
+
+  <button onclick="saveStep5C()">次へ進む</button>
+
+  <button onclick="backTo('step4_multi')">前のページに戻る</button>
+  <button onclick="location.href='cancel.html'" class="cancel-btn">予約をキャンセルする</button>
+</section>
+
+
+<section class="step" id="step5_b">
+  <h2>STEP 5 / 7<br>送信して次の台へ</h2>
+
+  <p>この台の入力内容を送信します。</p>
+
+  <button onclick="sendAndNext()">送信して次の台へ</button>
+
+  <button onclick="backTo('step3')">前のページに戻る</button>
+  <button onclick="location.href='cancel.html'" class="cancel-btn">予約をキャンセルする</button>
+</section>
+
+
+
+<section class="step" id="step5_a">
+  <h2>STEP 6 / 7<br>最終確認</h2>
+
+  <div id="confirm_area"></div>
+
+  <button onclick="finalSubmit()">送信する</button>
+
+  <button onclick="backTo('step3')">前のページに戻る</button>
+  <button onclick="location.href='cancel.html'" class="cancel-btn">予約をキャンセルする</button>
+</section>
+
+
+<section class="step" id="step6">
+  <h2>STEP 7 / 7<br>送信完了</h2>
+
+  <p>予約内容の送信が完了しました。</p>
+  <p>次の画面で予約IDをご確認いただけます。</p>
+
+  <button onclick="goThanks()">予約IDを確認する</button>
+
+  <button onclick="location.href='cancel.html'" class="cancel-btn">予約をキャンセルする</button>
+</section>
