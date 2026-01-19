@@ -42,23 +42,48 @@ async function loadTimeSlots(date) {
   const area = document.getElementById("time-slots");
   area.innerHTML = "";
 
+  if (!data.success || !data.slots || data.slots.length === 0) {
+    area.innerHTML = "<p>時間帯の取得に失敗しました。</p>";
+    return;
+  }
+
+  const slotContainer = document.createElement("div");
+  slotContainer.style.display = "flex";
+  slotContainer.style.flexWrap = "wrap";
+  slotContainer.style.gap = "10px";
+
   data.slots.forEach(s => {
     const btn = document.createElement("button");
     btn.textContent = s.time;
     btn.disabled = !s.available;
-    btn.style.margin = "5px";
+    btn.style.background = s.available ? "#4cd964" : "#444";
+    btn.style.color = s.available ? "#000" : "#888";
+    btn.style.border = "none";
+    btn.style.padding = "10px 16px";
+    btn.style.borderRadius = "6px";
+    btn.style.cursor = s.available ? "pointer" : "not-allowed";
 
     btn.onclick = () => {
+      if (!s.available) return;
+
       state.selectedDates[state.currentUnit - 1] = {
         date: date,
         time: s.time
       };
+
+      // 選択済みボタンを強調
+      [...slotContainer.children].forEach(b => b.style.outline = "none");
+      btn.style.outline = "2px solid #fff";
+
       document.getElementById("step1-next").style.display = "block";
     };
 
-    area.appendChild(btn);
+    slotContainer.appendChild(btn);
   });
+
+  area.appendChild(slotContainer);
 }
+
 
 window.onload = () => { initCalendar(); };
 
