@@ -1,7 +1,7 @@
 /* ============================================
    設定
 ============================================ */
-const API_BASE = "https://script.google.com/macros/s/AKfycbzINOo8WOkYoqN8y7ku3mHmKcLvRkp_4AkA2gmRfAmgwRJy_bWIYyRZcf1aQmYPHAwl/exec";
+const API_BASE = "https://script.google.com/macros/s/AKfycbxlIKZWy_OKCF-mL147Es-DkXyUvci8MAbpegWzyXxSyeokZuOG4MPZcxJr-7FE5p4n/exec";
 
 const state = {
   selectedDates: [],   // [{date:"2025-01-20", time:"10:00"}, ...]
