@@ -87,6 +87,12 @@ async function loadTimeSlots(date) {
 
 window.onload = () => { initCalendar(); };
 
+
+function saveSelectedDate() {
+  showStep("step2");
+}
+
+
 /* ============================================
    STEP2：顧客情報
 ============================================ */
